@@ -1,0 +1,18 @@
+# 配布用 zip に含めないファイル / ディレクトリ
+# build-theme.sh と GitHub Actions の両方が参照する
+
+.git
+.github
+.gitignore
+.distignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+node_modules
+vendor
+tests
+build-theme.sh
+CLAUDE.md
+dist
+*.log

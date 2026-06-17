@@ -26,10 +26,33 @@ Y2Kポップ世界観の高校生恋愛リアリティ番組まとめサイト�
 
 ## インストール
 
-1. 本フォルダ全体を `wp-content/themes/kyosuki-pop/` にアップロード
-2. WP管理画面 → 外観 → テーマで「Kyosuki Pop」を有効化
-3. 投稿タイプ・タクソノミー・サンプルタームが自動投入されます
-4. 外観 → カスタマイズ → 今日好きテーマ設定 で各種設定
+### A. リリース zip からインストール（推奨）
+
+1. GitHub の Releases から `kyosuki-pop.zip` をダウンロード
+2. WP管理画面 → 外観 → テーマ → 新規追加 → テーマのアップロード で zip を選択
+3. 「Kyosuki Pop」を有効化
+
+### B. リポジトリから zip をビルド
+
+```sh
+git clone https://github.com/Jinrai-inc/kyosuki_portal.git
+cd kyosuki_portal
+./build-theme.sh   # → dist/kyosuki-pop.zip
+```
+
+### C. クローンを直接 themes に置く
+
+```sh
+git clone https://github.com/Jinrai-inc/kyosuki_portal.git kyosuki-pop
+# 生成された kyosuki-pop/ を wp-content/themes/ に配置
+```
+
+> GitHub の「Download ZIP」で得られる zip はフォルダ名が `kyosuki_portal-<branch>` となるため、**そのままでは WordPress に取り込めません**。必ずフォルダ名を `kyosuki-pop` にリネームするか、上記 A / B の方法で配布用 zip を使用してください。
+
+有効化後、
+
+4. 投稿タイプ・タクソノミー・サンプルタームが自動投入されます
+5. 外観 → カスタマイズ → 今日好きテーマ設定 で各種設定
 
 ## ファイル構成
 
