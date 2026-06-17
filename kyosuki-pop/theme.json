@@ -1,0 +1,169 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "appearanceTools": true,
+    "useRootPaddingAwareAlignments": true,
+    "layout": {
+      "contentSize": "720px",
+      "wideSize": "1200px"
+    },
+    "color": {
+      "palette": [
+        { "slug": "bg",        "name": "Background",  "color": "#EFE7FF" },
+        { "slug": "ink",       "name": "Ink",         "color": "#1A0B3D" },
+        { "slug": "sub",       "name": "Sub",         "color": "#6B5A8A" },
+        { "slug": "pink",      "name": "Pop Pink",    "color": "#FF7AC6" },
+        { "slug": "pink-deep", "name": "Pink Deep",   "color": "#E83E8C" },
+        { "slug": "blue",      "name": "Pop Blue",    "color": "#5AC8FA" },
+        { "slug": "purple",    "name": "Pop Purple",  "color": "#9B5DE5" },
+        { "slug": "yellow",    "name": "Pop Yellow",  "color": "#FFE066" },
+        { "slug": "lime",      "name": "Pop Lime",    "color": "#C9F28A" },
+        { "slug": "white",     "name": "White",       "color": "#FFFFFF" }
+      ],
+      "gradients": [
+        { "slug": "rainbow", "name": "Rainbow", "gradient": "linear-gradient(135deg,#FF7AC6 0%,#9B5DE5 50%,#5AC8FA 100%)" },
+        { "slug": "sunset",  "name": "Sunset",  "gradient": "linear-gradient(135deg,#FF7AC6 0%,#FFE066 100%)" },
+        { "slug": "candy",   "name": "Candy",   "gradient": "linear-gradient(180deg,#EFE7FF 0%,#FFFFFF 100%)" }
+      ],
+      "duotone": [
+        { "slug": "pink-ink", "name": "Pink Ink", "colors": ["#1A0B3D", "#FF7AC6"] }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "\"LINE Seed JP\", \"Hiragino Sans\", system-ui, sans-serif",
+          "name": "LINE Seed JP",
+          "slug": "line-seed",
+          "fontFace": [
+            {
+              "fontFamily": "LINE Seed JP",
+              "fontStyle": "normal",
+              "fontWeight": "400 900",
+              "src": ["https://fonts.gstatic.com/s/lineseedjp/v1/{}.woff2"]
+            }
+          ]
+        },
+        {
+          "fontFamily": "\"Reggae One\", \"Zen Maru Gothic\", sans-serif",
+          "name": "Reggae One",
+          "slug": "reggae-one",
+          "fontFace": [
+            {
+              "fontFamily": "Reggae One",
+              "fontStyle": "normal",
+              "fontWeight": "400",
+              "src": ["https://fonts.gstatic.com/s/reggaeone/v18/{}.woff2"]
+            }
+          ]
+        }
+      ],
+      "fontSizes": [
+        { "slug": "xs",   "size": "10px",  "name": "XS" },
+        { "slug": "sm",   "size": "12px",  "name": "Small" },
+        { "slug": "base", "size": "14px",  "name": "Base" },
+        { "slug": "md",   "size": "16px",  "name": "Medium" },
+        { "slug": "lg",   "size": "20px",  "name": "Large" },
+        { "slug": "xl",   "size": "26px",  "name": "X-Large" },
+        { "slug": "xxl",  "size": "36px",  "name": "XX-Large" },
+        { "slug": "hero", "size": "48px",  "name": "Hero" }
+      ],
+      "fluid": true,
+      "lineHeight": true,
+      "letterSpacing": true,
+      "textTransform": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "blockGap": true,
+      "units": ["px", "em", "rem", "%", "vh", "vw"],
+      "spacingScale": {
+        "operator": "*",
+        "increment": 1.5,
+        "steps": 7,
+        "mediumStep": 16,
+        "unit": "px"
+      }
+    },
+    "border": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    },
+    "shadow": {
+      "presets": [
+        { "slug": "pop",   "name": "Pop",   "shadow": "3px 3px 0 #1A0B3D" },
+        { "slug": "pop-lg","name": "Pop L", "shadow": "6px 6px 0 #1A0B3D" },
+        { "slug": "pop-pink","name": "Pop Pink","shadow": "4px 4px 0 #FF7AC6" },
+        { "slug": "pop-yellow","name": "Pop Yellow","shadow": "4px 4px 0 #FFE066" }
+      ],
+      "defaultPresets": false
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var(--wp--preset--color--bg)",
+      "text": "var(--wp--preset--color--ink)"
+    },
+    "typography": {
+      "fontFamily": "\"LINE Seed JP\", \"Hiragino Sans\", \"Yu Gothic UI\", \"Helvetica Neue\", Arial, sans-serif",
+      "fontSize": "var(--wp--preset--font-size--base)",
+      "lineHeight": "1.7",
+      "letterSpacing": "0.01em"
+    },
+    "spacing": {
+      "padding": {
+        "top": "0",
+        "right": "var(--wp--preset--spacing--40)",
+        "bottom": "0",
+        "left": "var(--wp--preset--spacing--40)"
+      }
+    },
+    "elements": {
+      "link": {
+        "color": { "text": "var(--wp--preset--color--pink-deep)" },
+        ":hover": { "color": { "text": "var(--wp--preset--color--purple)" } }
+      },
+      "h1": { "typography": { "fontWeight": "900", "fontSize": "var(--wp--preset--font-size--xxl)", "lineHeight": "1.25", "letterSpacing": "-0.01em" } },
+      "h2": { "typography": { "fontWeight": "900", "fontSize": "var(--wp--preset--font-size--xl)", "lineHeight": "1.3" } },
+      "h3": { "typography": { "fontWeight": "900", "fontSize": "var(--wp--preset--font-size--lg)", "lineHeight": "1.35" } },
+      "h4": { "typography": { "fontWeight": "900", "fontSize": "var(--wp--preset--font-size--md)" } },
+      "button": {
+        "color": { "background": "var(--wp--preset--color--ink)", "text": "var(--wp--preset--color--yellow)" },
+        "border": { "radius": "16px", "width": "2px", "style": "solid", "color": "var(--wp--preset--color--ink)" },
+        "typography": { "fontWeight": "900", "fontSize": "var(--wp--preset--font-size--sm)" },
+        "spacing": { "padding": { "top": "8px", "bottom": "8px", "left": "16px", "right": "16px" } },
+        "shadow": "var(--wp--preset--shadow--pop)"
+      }
+    },
+    "blocks": {
+      "core/post-title": {
+        "typography": { "fontSize": "var(--wp--preset--font-size--xxl)", "fontWeight": "900", "lineHeight": "1.25" }
+      },
+      "core/quote": {
+        "border": { "radius": "12px", "width": "2px", "style": "solid", "color": "var(--wp--preset--color--ink)" },
+        "color": { "background": "var(--wp--preset--color--white)" },
+        "spacing": { "padding": { "top": "16px", "bottom": "16px", "left": "20px", "right": "20px" } },
+        "shadow": "var(--wp--preset--shadow--pop-yellow)"
+      },
+      "core/separator": {
+        "color": { "text": "var(--wp--preset--color--ink)" }
+      }
+    }
+  },
+  "templateParts": [
+    { "name": "header", "title": "ヘッダー", "area": "header" },
+    { "name": "footer", "title": "フッター", "area": "footer" },
+    { "name": "sidebar", "title": "サイドバー", "area": "uncategorized" },
+    { "name": "mobile-tabbar", "title": "モバイル下タブ", "area": "uncategorized" }
+  ],
+  "customTemplates": [
+    { "name": "page-cast",   "title": "出演者一覧", "postTypes": ["page"] },
+    { "name": "page-couple", "title": "カップル図鑑", "postTypes": ["page"] },
+    { "name": "page-ranking","title": "ランキング", "postTypes": ["page"] },
+    { "name": "page-about",  "title": "About",    "postTypes": ["page"] }
+  ]
+}

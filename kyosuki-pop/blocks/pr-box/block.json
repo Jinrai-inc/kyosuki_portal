@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "kyosuki/pr-box",
+  "version": "1.0.0",
+  "title": "PR商品ボックス",
+  "category": "kyosuki",
+  "icon": "tag",
+  "description": "PR商品紹介。商品名・価格・店舗・リンク・推し名を表示するY2Kスタイル広告枠。",
+  "textdomain": "kyosuki-pop",
+  "supports": { "html": false },
+  "attributes": {
+    "image":    { "type": "string", "default": "" },
+    "label":    { "type": "string", "default": "[PR] みお愛用" },
+    "title":    { "type": "string", "default": "マシュマロリップ" },
+    "price":    { "type": "string", "default": "¥1,980" },
+    "shop":     { "type": "string", "default": "楽天" },
+    "url":      { "type": "string", "default": "#" },
+    "ctaLabel": { "type": "string", "default": "CHECK →" },
+    "tone":     { "type": "string", "default": "pink" }
+  },
+  "editorScript": "file:./edit.js",
+  "render":       "file:./render.php"
+}

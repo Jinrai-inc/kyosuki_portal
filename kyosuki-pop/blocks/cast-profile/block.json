@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "kyosuki/cast-profile",
+  "version": "1.0.0",
+  "title": "出演者プロフィール",
+  "category": "kyosuki",
+  "icon": "id",
+  "description": "出演者ページ用のプロフィールブロック。身長/血液型/趣味などを6カラーチップ表示。",
+  "textdomain": "kyosuki-pop",
+  "supports": { "html": false },
+  "attributes": {
+    "items": {
+      "type": "array",
+      "default": [
+        { "key": "身長",   "value": "158cm",   "tone": "pink" },
+        { "key": "血液型", "value": "A型",     "tone": "blue" },
+        { "key": "星座",   "value": "魚座",     "tone": "yellow" },
+        { "key": "趣味",   "value": "お菓子作り","tone": "purple" },
+        { "key": "好きな男子","value": "優しい人","tone": "lime" },
+        { "key": "推し",   "value": "猫",       "tone": "pink-deep" }
+      ]
+    }
+  },
+  "editorScript": "file:./edit.js",
+  "render":       "file:./render.php"
+}

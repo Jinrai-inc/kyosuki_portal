@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "kyosuki/ranking",
+  "version": "1.0.0",
+  "title": "ランキング",
+  "category": "kyosuki",
+  "icon": "awards",
+  "description": "PV順 / コメント数フォールバックの人気記事ランキング。",
+  "textdomain": "kyosuki-pop",
+  "supports": { "html": false, "align": ["wide"] },
+  "attributes": {
+    "limit":     { "type": "number", "default": 5 },
+    "postType":  { "type": "string", "default": "post" },
+    "showThumb": { "type": "boolean", "default": true },
+    "title":     { "type": "string", "default": "" }
+  },
+  "editorScript": "file:./edit.js",
+  "render":       "file:./render.php"
+}

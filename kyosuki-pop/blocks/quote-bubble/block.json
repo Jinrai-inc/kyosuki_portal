@@ -1,0 +1,19 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "kyosuki/quote-bubble",
+  "version": "1.0.0",
+  "title": "コメント吹き出し",
+  "category": "kyosuki",
+  "icon": "format-chat",
+  "description": "出演者の発言を黄色シャドウ吹き出しで表示。",
+  "textdomain": "kyosuki-pop",
+  "supports": { "html": false },
+  "attributes": {
+    "speaker": { "type": "string", "default": "みお" },
+    "quote":   { "type": "string", "default": "ずっと片想いだと思ってたから、まさか両想いだったなんて信じられなくて" },
+    "tone":    { "type": "string", "default": "yellow" }
+  },
+  "editorScript": "file:./edit.js",
+  "render":       "file:./render.php"
+}

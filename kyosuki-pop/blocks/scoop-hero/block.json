@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "kyosuki/scoop-hero",
+  "version": "1.0.0",
+  "title": "SCOOPヒーロー",
+  "category": "kyosuki",
+  "icon": "star-filled",
+  "description": "Y2KポップなSCOOP形式のヒーローブロック。記事を1本指定可能。",
+  "keywords": ["hero", "scoop", "kyosuki", "ヒーロー"],
+  "textdomain": "kyosuki-pop",
+  "supports": { "html": false, "align": ["wide", "full"] },
+  "attributes": {
+    "postId":   { "type": "number", "default": 0 },
+    "kicker":   { "type": "string", "default": "★ TODAY'S SCOOP ★" },
+    "sticker":  { "type": "string", "default": "★ SCOOP ★" },
+    "circle":   { "type": "string", "default": "NEW!\nUP ♡" },
+    "ctaLabel": { "type": "string", "default": "READ MORE →" },
+    "highlightWord": { "type": "string", "default": "" },
+    "tone":     { "type": "string", "default": "pink", "enum": ["pink", "blue", "yellow", "purple"] }
+  },
+  "editorScript": "file:./edit.js",
+  "render":       "file:./render.php"
+}

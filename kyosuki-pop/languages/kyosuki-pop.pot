@@ -1,0 +1,249 @@
+# Kyosuki Pop POT (translation template)
+# Copyright (C) 2026
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: kyosuki-pop 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com\n"
+"POT-Creation-Date: 2026-04-27 00:00+0900\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: kyosuki-pop\n"
+
+msgid "グローバルメニュー"
+msgstr ""
+
+msgid "モバイルメニュー"
+msgstr ""
+
+msgid "フッターメニュー"
+msgstr ""
+
+msgid "出演者"
+msgstr ""
+
+msgid "アーク"
+msgstr ""
+
+msgid "カップル"
+msgstr ""
+
+msgid "ステータス"
+msgstr ""
+
+msgid "ジャンル"
+msgstr ""
+
+msgid "今日好きブロック"
+msgstr ""
+
+msgid "今日好きパターン"
+msgstr ""
+
+msgid "ヒーロー"
+msgstr ""
+
+msgid "リスト/ランキング"
+msgstr ""
+
+msgid "PR/プロモ"
+msgstr ""
+
+msgid "今日好きテーマ設定"
+msgstr ""
+
+msgid "レイアウト"
+msgstr ""
+
+msgid "アーカイブ列数"
+msgstr ""
+
+msgid "サイドバー位置"
+msgstr ""
+
+msgid "コンテンツ最大幅(px)"
+msgstr ""
+
+msgid "カラー"
+msgstr ""
+
+msgid "タイポグラフィ"
+msgstr ""
+
+msgid "本文フォント"
+msgstr ""
+
+msgid "本文フォントサイズ(px)"
+msgstr ""
+
+msgid "ヘッダー"
+msgstr ""
+
+msgid "LIVEバーを表示"
+msgstr ""
+
+msgid "LIVEバーのテキスト"
+msgstr ""
+
+msgid "SNS"
+msgstr ""
+
+msgid "SEO / OGP"
+msgstr ""
+
+msgid "メタディスクリプション"
+msgstr ""
+
+msgid "OG画像"
+msgstr ""
+
+msgid "解析タグ"
+msgstr ""
+
+msgid "広告"
+msgstr ""
+
+msgid "自動広告を有効化"
+msgstr ""
+
+msgid "多言語"
+msgstr ""
+
+msgid "Polylang/WPML/TranslatePress連携で言語切替を表示"
+msgstr ""
+
+msgid "SCOOPヒーロー"
+msgstr ""
+
+msgid "SCOOP設定"
+msgstr ""
+
+msgid "記事ID"
+msgstr ""
+
+msgid "キッカー"
+msgstr ""
+
+msgid "ステッカー文言"
+msgstr ""
+
+msgid "円バッジ文言"
+msgstr ""
+
+msgid "CTAラベル"
+msgstr ""
+
+msgid "ハイライトする語"
+msgstr ""
+
+msgid "トーン"
+msgstr ""
+
+msgid "ランキング"
+msgstr ""
+
+msgid "ランキング設定"
+msgstr ""
+
+msgid "件数"
+msgstr ""
+
+msgid "対象"
+msgstr ""
+
+msgid "サムネを表示"
+msgstr ""
+
+msgid "見出し"
+msgstr ""
+
+msgid "PR商品ボックス"
+msgstr ""
+
+msgid "PR設定"
+msgstr ""
+
+msgid "画像を選択"
+msgstr ""
+
+msgid "ラベル"
+msgstr ""
+
+msgid "商品名"
+msgstr ""
+
+msgid "価格"
+msgstr ""
+
+msgid "店舗"
+msgstr ""
+
+msgid "コメント吹き出し"
+msgstr ""
+
+msgid "吹き出し設定"
+msgstr ""
+
+msgid "話者"
+msgstr ""
+
+msgid "セリフ"
+msgstr ""
+
+msgid "影トーン"
+msgstr ""
+
+msgid "出演者プロフィール"
+msgstr ""
+
+msgid "プロフィール項目"
+msgstr ""
+
+msgid "項目名"
+msgstr ""
+
+msgid "値"
+msgstr ""
+
+msgid "色"
+msgstr ""
+
+msgid "削除"
+msgstr ""
+
+msgid "+ 項目を追加"
+msgstr ""
+
+msgid "出演者一覧"
+msgstr ""
+
+msgid "カップル図鑑"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "新規追加"
+msgstr ""
+
+msgid "新しい出演者を追加"
+msgstr ""
+
+msgid "出演者を編集"
+msgstr ""
+
+msgid "プロフィール"
+msgstr ""
+
+msgid "記事がまだありません。"
+msgstr ""
+
+msgid "タイトル未設定"
+msgstr ""
+
+msgid "沖縄編 × 成立報告"
+msgstr ""
+
+msgid "那覇の朝焼け、サプライズ、2人きりの車中…語られなかった瞬間ぜんぶ。"
+msgstr ""

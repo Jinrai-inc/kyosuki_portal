@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# WordPress local artifacts (誤って入れないように)
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+*.log
+
+# Node / build
+node_modules/
+dist/
+build/
+*.map
+
+# Composer
+vendor/
+
+# Env
+.env
+.env.local

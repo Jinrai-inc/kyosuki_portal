@@ -1,0 +1,7 @@
+/* Kyosuki Pop — Editor styles */
+.editor-styles-wrapper {
+  background: #EFE7FF;
+  font-family: "LINE Seed JP", "Hiragino Sans", "Yu Gothic UI", "Helvetica Neue", Arial, sans-serif;
+  color: #1A0B3D;
+}
+.editor-styles-wrapper .wp-block { max-width: 720px; }
