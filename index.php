@@ -49,7 +49,7 @@ if ( ! $scoop_q->have_posts() ) {
 			<p class="kp-scoop__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 60 ) ); ?></p>
 			<div class="kp-scoop__meta">
 				<span>📅 <?php echo esc_html( get_the_date( 'Y.n.j' ) ); ?></span>
-				<span>👀 <?php echo number_format_i18n( (int) get_post_meta( get_the_ID(), 'kp_views', true ) ?: rand( 1200, 9800 ) ); ?> views</span>
+				<span>👀 <?php echo number_format_i18n( (int) get_post_meta( get_the_ID(), 'kp_views', true ) ); ?> views</span>
 				<span>💬 <?php echo (int) get_comments_number(); ?></span>
 			</div>
 			<a class="kp-scoop__cta" href="<?php the_permalink(); ?>">READ MORE →</a>
@@ -84,7 +84,7 @@ $arcs = get_terms( array( 'taxonomy' => 'kp_arc', 'hide_empty' => false, 'number
 				$em   = $emojis[ $i % count( $emojis ) ];
 				printf(
 					'<a class="kp-chip kp-chip--lg" style="background:%s" href="#"><span class="kp-chip__em">%s</span><span class="kp-chip__txt">#%s</span><span class="kp-chip__cnt">%d posts</span></a>',
-					esc_attr( $tone ), esc_html( $em ), esc_html( $name ), rand( 12, 88 )
+					esc_attr( $tone ), esc_html( $em ), esc_html( $name ), 0
 				);
 			}
 		endif;

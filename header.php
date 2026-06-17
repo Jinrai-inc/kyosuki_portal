@@ -21,7 +21,7 @@
 <?php if ( get_theme_mod( 'kp_show_livebar', true ) ) : ?>
 	<div class="kp-livebar">
 		<span class="badge">◉ LIVE</span>
-		<marquee behavior="scroll" direction="left" scrollamount="3"><?php echo wp_kses_post( get_theme_mod( 'kp_livebar_text', '新着 14 件 / フォロワー 42.3K ♡  ★  今日もリアタイで観る？  ★  沖縄編 第8話 木曜21:00 配信  ♡  CP成立速報チェック！' ) ); ?></marquee>
+		<marquee behavior="scroll" direction="left" scrollamount="3"><?php echo wp_kses_post( kyosuki_pop_replace_stat_tokens( get_theme_mod( 'kp_livebar_text', '新着 {new_posts} 件 / 累計コメント {total_comments} ♡  ★  今日もリアタイで観る？  ★  CP成立速報チェック！' ) ) ); ?></marquee>
 	</div>
 <?php endif; ?>
 

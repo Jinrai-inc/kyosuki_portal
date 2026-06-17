@@ -87,8 +87,13 @@ class Kyosuki_Pop_Customizer {
 			'section' => 'kp_header', 'type' => 'checkbox',
 			'label'   => __( 'LIVEバーを表示', 'kyosuki-pop' ),
 		) );
-		$wp->add_setting( 'kp_livebar_text', array( 'default' => '新着 14 件 / フォロワー 42.3K ♡', 'sanitize_callback' => 'wp_kses_post' ) );
-		$wp->add_control( 'kp_livebar_text', array( 'section' => 'kp_header', 'type' => 'text', 'label' => __( 'LIVEバーのテキスト', 'kyosuki-pop' ) ) );
+		$wp->add_setting( 'kp_livebar_text', array( 'default' => '新着 {new_posts} 件 / 累計コメント {total_comments} ♡  ★  今日もリアタイで観る？  ★  CP成立速報チェック！', 'sanitize_callback' => 'wp_kses_post' ) );
+		$wp->add_control( 'kp_livebar_text', array(
+			'section'     => 'kp_header',
+			'type'        => 'text',
+			'label'       => __( 'LIVEバーのテキスト', 'kyosuki-pop' ),
+			'description' => __( '使えるトークン: {new_posts} {total_posts} {total_comments} {total_likes} {total_views}', 'kyosuki-pop' ),
+		) );
 
 		// === SNS ===
 		$wp->add_section( 'kp_sns', array( 'title' => __( 'SNS', 'kyosuki-pop' ), 'panel' => 'kp_panel' ) );

@@ -62,6 +62,73 @@ function kyosuki_pop_get_popular_posts( $limit = 5, $post_type = 'post' ) {
 }
 
 /**
+ * 公開記事 / コメント / いいねの実カウントを返す
+ * 重い集計はトランジェントで 10 分キャッシュ
+ */
+function kyosuki_pop_site_stats() {
+	$cached = get_transient( 'kp_site_stats' );
+	if ( is_array( $cached ) ) return $cached;
+
+	$counts          = wp_count_posts( 'post' );
+	$comments        = wp_count_comments();
+	$published_total = isset( $counts->publish ) ? (int) $counts->publish : 0;
+
+	$week_q = new WP_Query( array(
+		'post_type'              => 'post',
+		'post_status'            => 'publish',
+		'date_query'             => array( array( 'after' => '1 week ago' ) ),
+		'fields'                 => 'ids',
+		'posts_per_page'         => -1,
+		'no_found_rows'          => false,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+	) );
+
+	global $wpdb;
+	$likes_sum = (int) $wpdb->get_var(
+		"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'kp_likes'"
+	);
+	$views_sum = (int) $wpdb->get_var(
+		"SELECT SUM(CAST(meta_value AS UNSIGNED)) FROM {$wpdb->postmeta} WHERE meta_key = 'kp_views'"
+	);
+
+	$stats = array(
+		'new_posts'      => (int) $week_q->found_posts,
+		'total_posts'    => $published_total,
+		'total_comments' => isset( $comments->approved ) ? (int) $comments->approved : 0,
+		'total_likes'    => $likes_sum,
+		'total_views'    => $views_sum,
+	);
+	set_transient( 'kp_site_stats', $stats, 10 * MINUTE_IN_SECONDS );
+	return $stats;
+}
+
+/**
+ * 文字列内の {new_posts} / {total_posts} / {total_comments} / {total_likes} / {total_views}
+ * を実カウントへ置換
+ */
+function kyosuki_pop_replace_stat_tokens( $text ) {
+	if ( strpos( $text, '{' ) === false ) return $text;
+	$stats = kyosuki_pop_site_stats();
+	$map = array();
+	foreach ( $stats as $k => $v ) {
+		$map[ '{' . $k . '}' ] = number_format_i18n( (int) $v );
+	}
+	return strtr( $text, $map );
+}
+
+/**
+ * 統計が変動したらキャッシュを破棄
+ */
+function kyosuki_pop_flush_stats_cache() {
+	delete_transient( 'kp_site_stats' );
+}
+add_action( 'save_post_post', 'kyosuki_pop_flush_stats_cache' );
+add_action( 'deleted_post',   'kyosuki_pop_flush_stats_cache' );
+add_action( 'comment_post',   'kyosuki_pop_flush_stats_cache' );
+add_action( 'edit_comment',   'kyosuki_pop_flush_stats_cache' );
+
+/**
  * PV カウンタ (シングル表示時にカウント)
  */
 function kyosuki_pop_count_views() {

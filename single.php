@@ -39,7 +39,7 @@ get_header(); ?>
 			<?php echo get_avatar( get_the_author_meta( 'ID' ), 36, '', '', array( 'class' => 'kp-avatar' ) ); ?>
 			<div>
 				<p class="kp-author">編集部 <?php the_author(); ?></p>
-				<p class="kp-meta">📅 <?php echo esc_html( get_the_date( 'Y.n.j H:i' ) ); ?> · 👀 <?php echo number_format_i18n( (int) get_post_meta( get_the_ID(), 'kp_views', true ) ?: rand( 800, 9999 ) ); ?> views · 💬 <?php echo (int) get_comments_number(); ?></p>
+				<p class="kp-meta">📅 <?php echo esc_html( get_the_date( 'Y.n.j H:i' ) ); ?> · 👀 <?php echo number_format_i18n( (int) get_post_meta( get_the_ID(), 'kp_views', true ) ); ?> views · 💬 <?php echo (int) get_comments_number(); ?></p>
 			</div>
 		</div>
 	</header>
