@@ -59,28 +59,35 @@ if ( ! $scoop_q->have_posts() ) {
 </section>
 
 <?php
-// ===== 2. GENRE CHIPS =====
-$arcs = get_terms( array( 'taxonomy' => 'kp_arc', 'hide_empty' => false, 'number' => 8 ) );
+// ===== 2. POPULAR TAGS =====
+$popular_tags = get_terms( array(
+	'taxonomy'   => 'post_tag',
+	'orderby'    => 'count',
+	'order'      => 'DESC',
+	'number'     => 8,
+	'hide_empty' => true,
+) );
+if ( ! is_wp_error( $popular_tags ) && $popular_tags ) :
 ?>
 <section class="kp-section kp-section--chips">
-	<h2 class="kp-section__head"><span class="kp-section__deco">★</span> 今期のアーク <span class="kp-section__deco">★</span></h2>
+	<h2 class="kp-section__head"><span class="kp-section__deco">★</span> 人気のあるタグ <span class="kp-section__deco">★</span></h2>
 	<div class="kp-chips">
 		<?php
 		$tones = array( '#FF7AC6', '#5AC8FA', '#FFE066', '#9B5DE5', '#C9F28A', '#E83E8C' );
-		$emojis = array( '🏝', '❄️', '🎒', '🌸', '☀️', '🎓' );
-		if ( ! is_wp_error( $arcs ) && $arcs ) :
-			foreach ( $arcs as $i => $t ) {
-				$tone = $tones[ $i % count( $tones ) ];
-				$em   = $emojis[ $i % count( $emojis ) ];
-				printf(
-					'<a class="kp-chip kp-chip--lg" style="background:%s" href="%s"><span class="kp-chip__em">%s</span><span class="kp-chip__txt">#%s</span><span class="kp-chip__cnt">%d posts</span></a>',
-					esc_attr( $tone ), esc_url( get_term_link( $t ) ), esc_html( $em ), esc_html( $t->name ), (int) $t->count
-				);
-			}
-		endif;
+		foreach ( $popular_tags as $i => $t ) {
+			$tone = $tones[ $i % count( $tones ) ];
+			printf(
+				'<a class="kp-chip kp-chip--lg" style="background:%s" href="%s"><span class="kp-chip__em">#</span><span class="kp-chip__txt">%s</span><span class="kp-chip__cnt">%s posts</span></a>',
+				esc_attr( $tone ),
+				esc_url( get_term_link( $t ) ),
+				esc_html( $t->name ),
+				esc_html( number_format_i18n( (int) $t->count ) )
+			);
+		}
 		?>
 	</div>
 </section>
+<?php endif; ?>
 
 <?php
 // ===== 3. NEW ARTICLES (Magazine grid) =====
@@ -266,28 +273,5 @@ $couple_q = new WP_Query( array( 'post_type' => 'couple', 'posts_per_page' => 6 
 		<?php endif; ?>
 	</div>
 </section>
-
-<?php
-// ===== 7. POPULAR TAGS =====
-$pop_tags = get_terms( array(
-	'taxonomy'   => 'post_tag',
-	'orderby'    => 'count',
-	'order'      => 'DESC',
-	'number'     => 12,
-	'hide_empty' => true,
-) );
-if ( ! is_wp_error( $pop_tags ) && $pop_tags ) :
-?>
-<section class="kp-section kp-section--ig">
-	<h2 class="kp-section__head">★ #今日好き タグでチェック ★</h2>
-	<div class="kp-ig-strip">
-		<?php foreach ( $pop_tags as $i => $tag ) : ?>
-			<a class="kp-ig" href="<?php echo esc_url( get_term_link( $tag ) ); ?>" style="background:<?php echo esc_attr( $tones[ $i % count( $tones ) ] ); ?>" title="<?php echo esc_attr( sprintf( '#%s (%d)', $tag->name, (int) $tag->count ) ); ?>">
-				<span>#<?php echo esc_html( $tag->name ); ?></span>
-			</a>
-		<?php endforeach; ?>
-	</div>
-</section>
-<?php endif; ?>
 
 <?php get_footer(); ?>
