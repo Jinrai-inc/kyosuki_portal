@@ -45,7 +45,7 @@
 	document.querySelectorAll( '[data-kp-poll]' ).forEach( function ( poll ) {
 		var pollId = poll.dataset.kpPollId || 'default';
 		var key    = 'kp_poll_' + pollId;
-		var items  = poll.querySelectorAll( 'li[data-kp-opt]' );
+		var items  = poll.querySelectorAll( 'li[data-kp-opt-hash]' );
 		var msg    = poll.querySelector( '[data-kp-poll-msg]' );
 		var hint   = poll.querySelector( '[data-kp-poll-hint]' );
 		var errEl  = poll.querySelector( '[data-kp-poll-err]' );
@@ -65,7 +65,7 @@
 		function applyData( options ) {
 			if ( ! options || ! options.length ) return;
 			options.forEach( function ( o ) {
-				var li = poll.querySelector( 'li[data-kp-opt="' + o.index + '"]' );
+				var li = poll.querySelector( 'li[data-kp-opt-hash="' + o.hash + '"]' );
 				if ( ! li ) return;
 				li.dataset.kpPct = o.pct;
 				li.style.setProperty( '--w', o.pct + '%' );
@@ -81,19 +81,19 @@
 			setTimeout( function () { errEl.hidden = true; }, 3000 );
 		}
 
-		function vote( idx, li ) {
-			if ( voted ) return;
+		function vote( hash, li ) {
+			if ( voted || ! hash ) return;
 			if ( ! window.KP_POLL || ! KP_POLL.restUrl ) {
 				// REST 設定なし → ローカル投票のみ
 				voted = true;
-				try { localStorage.setItem( key, String( idx ) ); } catch ( e ) {}
+				try { localStorage.setItem( key, hash ); } catch ( e ) {}
 				lockResults();
 				return;
 			}
 			fetch( KP_POLL.restUrl, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': KP_POLL.nonce || '' },
-				body: JSON.stringify( { option: idx } ),
+				body: JSON.stringify( { option_hash: hash } ),
 			} )
 			.then( function ( r ) { return r.json().then( function ( j ) { return { ok: r.ok, body: j }; } ); } )
 			.then( function ( res ) {
@@ -101,14 +101,14 @@
 					showError( ( res.body && res.body.message ) || '投票できませんでした' );
 					if ( res.body && res.body.code === 'kp_already_voted' ) {
 						voted = true;
-						try { localStorage.setItem( key, String( idx ) ); } catch ( e ) {}
+						try { localStorage.setItem( key, hash ); } catch ( e ) {}
 						lockResults();
 					}
 					return;
 				}
 				applyData( res.body.options );
 				voted = true;
-				try { localStorage.setItem( key, String( idx ) ); } catch ( e ) {}
+				try { localStorage.setItem( key, hash ); } catch ( e ) {}
 				if ( li ) li.classList.add( 'is-active' );
 				lockResults();
 			} )
@@ -123,15 +123,15 @@
 				if ( voted ) return;
 				items.forEach( function ( x ) { x.classList.remove( 'is-active' ); } );
 				li.classList.add( 'is-active' );
-				vote( parseInt( li.dataset.kpOpt || '0', 10 ), li );
+				vote( li.dataset.kpOptHash || '', li );
 			} );
 		} );
 
 		if ( voted ) {
-			var savedIdx = null;
-			try { savedIdx = localStorage.getItem( key ); } catch ( e ) {}
+			var savedHash = null;
+			try { savedHash = localStorage.getItem( key ); } catch ( e ) {}
 			items.forEach( function ( li ) {
-				if ( String( li.dataset.kpOpt ) === String( savedIdx ) ) li.classList.add( 'is-active' );
+				if ( li.dataset.kpOptHash && li.dataset.kpOptHash === savedHash ) li.classList.add( 'is-active' );
 			} );
 			// 最新結果を取得して反映
 			if ( window.KP_POLL && KP_POLL.restUrl ) {

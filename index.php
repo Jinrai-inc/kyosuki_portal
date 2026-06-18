@@ -194,22 +194,24 @@ $new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
 			</div>
 			<?php endif; ?>
 
-			<?php if ( get_theme_mod( 'kp_poll_enabled', true ) ) :
-				$poll_data = class_exists( 'Kyosuki_Pop_Poll' ) ? Kyosuki_Pop_Poll::calculate_percentages() : array( 'percentages' => array() );
-				$lines = preg_split( "/\r\n|\r|\n/", trim( get_theme_mod( 'kp_poll_options', "りく♡みお|78\nゆうた♡あい|54\nけんと♡なな|32\nそら♡まりん|21" ) ) );
+			<?php
+			$poll_show = get_theme_mod( 'kp_poll_enabled', true )
+				&& class_exists( 'Kyosuki_Pop_Poll' )
+				&& Kyosuki_Pop_Poll::has_options();
+			if ( $poll_show ) :
+				$poll_opts = Kyosuki_Pop_Poll::get_options_list();
+				$poll_data = Kyosuki_Pop_Poll::calculate_percentages();
+				$poll_id   = Kyosuki_Pop_Poll::get_current_round_id();
 			?>
-			<div class="kp-poll" data-kp-poll data-kp-poll-id="<?php echo class_exists( 'Kyosuki_Pop_Poll' ) ? esc_attr( Kyosuki_Pop_Poll::get_poll_id() ) : ''; ?>">
+			<div class="kp-poll" data-kp-poll data-kp-poll-id="<?php echo esc_attr( $poll_id ); ?>">
 				<p class="kp-poll__title"><?php echo esc_html( get_theme_mod( 'kp_poll_title', '★ 今週の推しCPは？' ) ); ?></p>
 				<p class="kp-poll__hint" data-kp-poll-hint>♡ あなたの推しCPに投票してね（投票後に結果が見れるよ）</p>
 				<ul class="kp-poll__list">
-					<?php foreach ( $lines as $i => $line ) :
-						$parts = explode( '|', $line, 2 );
-						$name  = trim( $parts[0] ?? '' );
-						if ( $name === '' ) continue;
-						$pct = (int) ( $poll_data['percentages'][ $i ] ?? 0 );
+					<?php foreach ( $poll_opts as $o ) :
+						$pct = (int) ( $poll_data['percentages'][ $o['hash'] ] ?? 0 );
 					?>
-						<li style="--w:<?php echo (int) $pct; ?>%;" data-kp-opt="<?php echo (int) $i; ?>" data-kp-pct="<?php echo (int) $pct; ?>">
-							<button type="button" class="kp-poll__opt"><span class="kp-poll__name"><?php echo esc_html( $name ); ?></span><b class="kp-poll__pct"><?php echo (int) $pct; ?>%</b></button>
+						<li style="--w:<?php echo (int) $pct; ?>%;" data-kp-opt-hash="<?php echo esc_attr( $o['hash'] ); ?>" data-kp-pct="<?php echo (int) $pct; ?>">
+							<button type="button" class="kp-poll__opt"><span class="kp-poll__name"><?php echo esc_html( $o['name'] ); ?></span><b class="kp-poll__pct"><?php echo (int) $pct; ?>%</b></button>
 						</li>
 					<?php endforeach; ?>
 				</ul>

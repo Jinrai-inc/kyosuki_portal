@@ -207,22 +207,47 @@ class Kyosuki_Pop_Customizer {
 		) );
 
 		// === Poll (カップル投票) ===
-		$wp->add_section( 'kp_poll', array( 'title' => __( 'カップル投票', 'kyosuki-pop' ), 'panel' => 'kp_panel' ) );
+		$wp->add_section( 'kp_poll', array(
+			'title'       => __( 'カップル投票', 'kyosuki-pop' ),
+			'panel'       => 'kp_panel',
+			'description' => __( 'トップページに表示する「推しカップル投票」の設定です。<br><br><strong>選択肢に 1 件以上 CP 名を入力したときだけ表示</strong>されます。<br><br>集計結果の確認・過去のラウンドのアーカイブ・CSV ダウンロードは「<a href="' . esc_url( admin_url( 'themes.php?page=kp-poll' ) ) . '">外観 → カップル投票 集計</a>」から行えます。', 'kyosuki-pop' ),
+		) );
+
 		$wp->add_setting( 'kp_poll_enabled', array( 'default' => true, 'sanitize_callback' => 'wp_validate_boolean' ) );
-		$wp->add_control( 'kp_poll_enabled', array( 'section' => 'kp_poll', 'type' => 'checkbox', 'label' => __( '投票ボックスを表示する', 'kyosuki-pop' ) ) );
+		$wp->add_control( 'kp_poll_enabled', array(
+			'section'     => 'kp_poll',
+			'type'        => 'checkbox',
+			'label'       => __( '投票ボックスを表示する', 'kyosuki-pop' ),
+			'description' => __( 'ふだんはオンのままで OK。', 'kyosuki-pop' ),
+		) );
+
 		$wp->add_setting( 'kp_poll_title', array( 'default' => '★ 今週の推しCPは？', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_poll_title', array( 'section' => 'kp_poll', 'type' => 'text', 'label' => __( '投票タイトル', 'kyosuki-pop' ) ) );
+		$wp->add_control( 'kp_poll_title', array(
+			'section'     => 'kp_poll',
+			'type'        => 'text',
+			'label'       => __( '① 投票タイトル', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => '★ 今週の推しCPは？' ),
+		) );
+
 		$wp->add_setting( 'kp_poll_options', array(
-			'default' => "りく♡みお|78\nゆうた♡あい|54\nけんと♡なな|32\nそら♡まりん|21",
+			'default'           => '',
 			'sanitize_callback' => 'sanitize_textarea_field',
 		) );
 		$wp->add_control( 'kp_poll_options', array(
-			'section' => 'kp_poll', 'type' => 'textarea',
-			'label'   => __( '選択肢 (1行1件「名前|初期%」)', 'kyosuki-pop' ),
-			'description' => __( '例: りく♡みお|78', 'kyosuki-pop' ),
+			'section'     => 'kp_poll',
+			'type'        => 'textarea',
+			'label'       => __( '② 選択肢（1行に1組ずつ）', 'kyosuki-pop' ),
+			'description' => __( '例:<br>りく♡みお<br>ゆうた♡あい<br>けんと♡なな<br><br>※ 選択肢を編集しても、これまでの票はそのまま残ります（名前を変えた選択肢は新規扱いで 0 票スタート）。<br>※ 集計結果をリセットしたい場合は「外観 → カップル投票 集計」から「アーカイブして次のラウンドを開始」を押してください。', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => "りく♡みお\nゆうた♡あい\nけんと♡なな" ),
 		) );
+
 		$wp->add_setting( 'kp_poll_cta', array( 'default' => '投票する →', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_poll_cta', array( 'section' => 'kp_poll', 'type' => 'text', 'label' => __( '投票ボタン文言', 'kyosuki-pop' ) ) );
+		$wp->add_control( 'kp_poll_cta', array(
+			'section'     => 'kp_poll',
+			'type'        => 'text',
+			'label'       => __( '③ 投票ボタン文言', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => '投票する →' ),
+		) );
 
 		// === i18n ===
 		$wp->add_section( 'kp_i18n', array( 'title' => __( '多言語', 'kyosuki-pop' ), 'panel' => 'kp_panel' ) );
