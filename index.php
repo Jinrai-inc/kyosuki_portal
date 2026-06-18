@@ -195,16 +195,13 @@ $new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
 			<?php endif; ?>
 
 			<?php
-			$poll_show = get_theme_mod( 'kp_poll_enabled', true )
-				&& class_exists( 'Kyosuki_Pop_Poll' )
-				&& Kyosuki_Pop_Poll::has_options();
-			if ( $poll_show ) :
+			$poll_post = class_exists( 'Kyosuki_Pop_Poll' ) ? Kyosuki_Pop_Poll::active_poll() : null;
+			if ( $poll_post && Kyosuki_Pop_Poll::has_options() ) :
 				$poll_opts = Kyosuki_Pop_Poll::get_options_list();
 				$poll_data = Kyosuki_Pop_Poll::calculate_percentages();
-				$poll_id   = Kyosuki_Pop_Poll::get_current_round_id();
 			?>
-			<div class="kp-poll" data-kp-poll data-kp-poll-id="<?php echo esc_attr( $poll_id ); ?>">
-				<p class="kp-poll__title"><?php echo esc_html( get_theme_mod( 'kp_poll_title', '★ 今週の推しCPは？' ) ); ?></p>
+			<div class="kp-poll" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
+				<p class="kp-poll__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
 				<p class="kp-poll__hint" data-kp-poll-hint>♡ あなたの推しCPに投票してね（投票後に結果が見れるよ）</p>
 				<ul class="kp-poll__list">
 					<?php foreach ( $poll_opts as $o ) :

@@ -7,7 +7,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'KYOSUKI_POP_VERSION', '1.5.0' );
+define( 'KYOSUKI_POP_VERSION', '1.6.0' );
 define( 'KYOSUKI_POP_DIR', get_template_directory() );
 define( 'KYOSUKI_POP_URI', get_template_directory_uri() );
 
@@ -135,5 +135,6 @@ require KYOSUKI_POP_DIR . '/inc/patterns.php';
 require KYOSUKI_POP_DIR . '/inc/template-functions.php';
 require KYOSUKI_POP_DIR . '/inc/widgets.php';
 require KYOSUKI_POP_DIR . '/inc/customizer.php';
+require KYOSUKI_POP_DIR . '/inc/poll-cpt.php';
 require KYOSUKI_POP_DIR . '/inc/poll-api.php';
 require KYOSUKI_POP_DIR . '/inc/like-api.php';

@@ -93,7 +93,7 @@
 			fetch( KP_POLL.restUrl, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': KP_POLL.nonce || '' },
-				body: JSON.stringify( { option_hash: hash } ),
+				body: JSON.stringify( { poll_id: parseInt( pollId, 10 ) || 0, option_hash: hash } ),
 			} )
 			.then( function ( r ) { return r.json().then( function ( j ) { return { ok: r.ok, body: j }; } ); } )
 			.then( function ( res ) {
@@ -135,10 +135,13 @@
 			} );
 			// 最新結果を取得して反映
 			if ( window.KP_POLL && KP_POLL.restUrl ) {
-				fetch( KP_POLL.restUrl ).then( function ( r ) { return r.json(); } ).then( function ( j ) {
-					if ( j && j.options ) applyData( j.options );
-					lockResults();
-				} ).catch( function () { lockResults(); } );
+				var sep = KP_POLL.restUrl.indexOf( '?' ) === -1 ? '?' : '&';
+				fetch( KP_POLL.restUrl + sep + 'poll_id=' + encodeURIComponent( pollId ) )
+					.then( function ( r ) { return r.json(); } )
+					.then( function ( j ) {
+						if ( j && j.options ) applyData( j.options );
+						lockResults();
+					} ).catch( function () { lockResults(); } );
 			} else {
 				lockResults();
 			}
