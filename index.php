@@ -163,18 +163,26 @@ $new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
 		</div>
 
 		<aside class="kp-rank-side">
-			<?php if ( get_theme_mod( 'kp_pr_enabled', true ) ) :
-				$pr_url   = get_theme_mod( 'kp_pr_url', '#' );
+			<?php
+			$pr_title = trim( (string) get_theme_mod( 'kp_pr_title', '' ) );
+			$pr_url   = trim( (string) get_theme_mod( 'kp_pr_url', '' ) );
+			$pr_show  = get_theme_mod( 'kp_pr_enabled', true ) && $pr_title !== '' && $pr_url !== '';
+			if ( $pr_show ) :
 				$pr_image = get_theme_mod( 'kp_pr_image' );
 				if ( ! $pr_image ) $pr_image = kyosuki_pop_placeholder_url( 9 );
+				$pr_label = get_theme_mod( 'kp_pr_label', '' );
+				$pr_price = trim( (string) get_theme_mod( 'kp_pr_price', '' ) );
+				$pr_shop  = trim( (string) get_theme_mod( 'kp_pr_shop', '' ) );
+				$pr_cta   = get_theme_mod( 'kp_pr_cta', 'CHECK →' );
+				$price_line = trim( $pr_price . ( $pr_shop !== '' ? ' / ' . $pr_shop : '' ) );
 			?>
 			<div class="kp-pr">
-				<div class="kp-pr__thumb"><a href="<?php echo esc_url( $pr_url ); ?>" rel="sponsored noopener"><img src="<?php echo esc_url( $pr_image ); ?>" alt="" /></a></div>
+				<div class="kp-pr__thumb"><a href="<?php echo esc_url( $pr_url ); ?>" rel="sponsored noopener" target="_blank"><img src="<?php echo esc_url( $pr_image ); ?>" alt="<?php echo esc_attr( $pr_title ); ?>" /></a></div>
 				<div class="kp-pr__body">
-					<span class="kp-pr__label"><?php echo esc_html( get_theme_mod( 'kp_pr_label', '[PR] みお愛用 ♡' ) ); ?></span>
-					<p class="kp-pr__title"><?php echo esc_html( get_theme_mod( 'kp_pr_title', 'マシュマロリップ' ) ); ?></p>
-					<p class="kp-pr__price"><?php echo esc_html( get_theme_mod( 'kp_pr_price', '¥1,980 / 楽天' ) ); ?></p>
-					<a class="kp-pr__cta" href="<?php echo esc_url( $pr_url ); ?>" rel="sponsored noopener"><?php echo esc_html( get_theme_mod( 'kp_pr_cta', 'CHECK →' ) ); ?></a>
+					<?php if ( $pr_label !== '' ) : ?><span class="kp-pr__label"><?php echo esc_html( $pr_label ); ?></span><?php endif; ?>
+					<p class="kp-pr__title"><?php echo esc_html( $pr_title ); ?></p>
+					<?php if ( $price_line !== '' ) : ?><p class="kp-pr__price"><?php echo esc_html( $price_line ); ?></p><?php endif; ?>
+					<a class="kp-pr__cta" href="<?php echo esc_url( $pr_url ); ?>" rel="sponsored noopener" target="_blank"><?php echo esc_html( $pr_cta ); ?></a>
 				</div>
 			</div>
 			<?php endif; ?>

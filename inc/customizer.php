@@ -20,8 +20,9 @@ class Kyosuki_Pop_Customizer {
 	public static function register( $wp ) {
 		// --- Panel: KP Settings ---
 		$wp->add_panel( 'kp_panel', array(
-			'title'    => __( '今日好きテーマ設定', 'kyosuki-pop' ),
-			'priority' => 30,
+			'title'       => __( '今日好きテーマ設定', 'kyosuki-pop' ),
+			'priority'    => 30,
+			'description' => __( 'サイト全体の見た目や、PR枠・投票ボックスなど Kyosuki Pop テーマ独自の機能をまとめて設定できます。<br>左メニューの項目を選ぶと右に説明が出ます。', 'kyosuki-pop' ),
 		) );
 
 		// === Layout ===
@@ -129,22 +130,81 @@ class Kyosuki_Pop_Customizer {
 		$wp->add_setting( 'kp_ads_auto', array( 'default' => false, 'sanitize_callback' => 'wp_validate_boolean' ) );
 		$wp->add_control( 'kp_ads_auto', array( 'section' => 'kp_ads', 'type' => 'checkbox', 'label' => __( '自動広告を有効化', 'kyosuki-pop' ) ) );
 
-		// === PR Box (サイドバナー) ===
-		$wp->add_section( 'kp_pr', array( 'title' => __( 'PR/アフィリエイトボックス', 'kyosuki-pop' ), 'panel' => 'kp_panel' ) );
+		// === PR枠（商品紹介ボックス） ===
+		$wp->add_section( 'kp_pr', array(
+			'title'       => __( 'PR枠（商品紹介ボックス）', 'kyosuki-pop' ),
+			'panel'       => 'kp_panel',
+			'description' => __( 'トップページのランキング横に表示される、商品紹介・アフィリエイト枠の設定です。<br><br><strong>「商品名」と「リンクURL」を両方入れたときだけ自動で表示</strong>されます。<br>空欄のままにしておけば表示されません。<br><br>記事の本文中に入れたい場合は、ブロック追加から「PR商品ボックス」を選んでください。', 'kyosuki-pop' ),
+		) );
+
 		$wp->add_setting( 'kp_pr_enabled', array( 'default' => true, 'sanitize_callback' => 'wp_validate_boolean' ) );
-		$wp->add_control( 'kp_pr_enabled', array( 'section' => 'kp_pr', 'type' => 'checkbox', 'label' => __( 'PRボックスを表示する', 'kyosuki-pop' ) ) );
-		$wp->add_setting( 'kp_pr_label', array( 'default' => '[PR] みお愛用 ♡', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_pr_label', array( 'section' => 'kp_pr', 'type' => 'text', 'label' => __( 'ラベル', 'kyosuki-pop' ) ) );
-		$wp->add_setting( 'kp_pr_title', array( 'default' => 'マシュマロリップ', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_pr_title', array( 'section' => 'kp_pr', 'type' => 'text', 'label' => __( '商品名', 'kyosuki-pop' ) ) );
-		$wp->add_setting( 'kp_pr_price', array( 'default' => '¥1,980 / 楽天', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_pr_price', array( 'section' => 'kp_pr', 'type' => 'text', 'label' => __( '価格 / ショップ', 'kyosuki-pop' ) ) );
-		$wp->add_setting( 'kp_pr_url', array( 'default' => '#', 'sanitize_callback' => 'esc_url_raw' ) );
-		$wp->add_control( 'kp_pr_url', array( 'section' => 'kp_pr', 'type' => 'url', 'label' => __( 'リンクURL', 'kyosuki-pop' ) ) );
-		$wp->add_setting( 'kp_pr_cta', array( 'default' => 'CHECK →', 'sanitize_callback' => 'sanitize_text_field' ) );
-		$wp->add_control( 'kp_pr_cta', array( 'section' => 'kp_pr', 'type' => 'text', 'label' => __( 'ボタン文言', 'kyosuki-pop' ) ) );
+		$wp->add_control( 'kp_pr_enabled', array(
+			'section'     => 'kp_pr',
+			'type'        => 'checkbox',
+			'label'       => __( 'PR枠の機能をオンにする', 'kyosuki-pop' ),
+			'description' => __( 'ふだんはオンのままで OK。一時的に全部隠したいときだけオフにします。', 'kyosuki-pop' ),
+		) );
+
 		$wp->add_setting( 'kp_pr_image', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
-		$wp->add_control( new WP_Customize_Image_Control( $wp, 'kp_pr_image', array( 'section' => 'kp_pr', 'label' => __( '商品画像', 'kyosuki-pop' ) ) ) );
+		$wp->add_control( new WP_Customize_Image_Control( $wp, 'kp_pr_image', array(
+			'section'     => 'kp_pr',
+			'label'       => __( '① 商品の画像', 'kyosuki-pop' ),
+			'description' => __( '正方形 or 縦長の写真がおすすめ。空欄なら ♡ のプレースホルダーになります。', 'kyosuki-pop' ),
+		) ) );
+
+		$wp->add_setting( 'kp_pr_label', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp->add_control( 'kp_pr_label', array(
+			'section'     => 'kp_pr',
+			'type'        => 'text',
+			'label'       => __( '② ラベル（小さい黄色いバッジ）', 'kyosuki-pop' ),
+			'description' => __( '入力例: [PR] みお愛用 ♡', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => '[PR] みお愛用 ♡' ),
+		) );
+
+		$wp->add_setting( 'kp_pr_title', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp->add_control( 'kp_pr_title', array(
+			'section'     => 'kp_pr',
+			'type'        => 'text',
+			'label'       => __( '③ 商品名（必須）', 'kyosuki-pop' ),
+			'description' => __( '入力例: マシュマロリップ', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => 'マシュマロリップ' ),
+		) );
+
+		$wp->add_setting( 'kp_pr_price', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp->add_control( 'kp_pr_price', array(
+			'section'     => 'kp_pr',
+			'type'        => 'text',
+			'label'       => __( '④ 価格', 'kyosuki-pop' ),
+			'description' => __( '入力例: ¥1,980', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => '¥1,980' ),
+		) );
+
+		$wp->add_setting( 'kp_pr_shop', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp->add_control( 'kp_pr_shop', array(
+			'section'     => 'kp_pr',
+			'type'        => 'text',
+			'label'       => __( '⑤ ショップ名', 'kyosuki-pop' ),
+			'description' => __( '入力例: 楽天 / Amazon / Qoo10 など', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => '楽天' ),
+		) );
+
+		$wp->add_setting( 'kp_pr_url', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+		$wp->add_control( 'kp_pr_url', array(
+			'section'     => 'kp_pr',
+			'type'        => 'url',
+			'label'       => __( '⑥ リンクURL（必須）', 'kyosuki-pop' ),
+			'description' => __( 'アフィリエイトリンクや商品ページの URL を貼ってください。https:// から始まる文字列です。', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => 'https://...' ),
+		) );
+
+		$wp->add_setting( 'kp_pr_cta', array( 'default' => 'CHECK →', 'sanitize_callback' => 'sanitize_text_field' ) );
+		$wp->add_control( 'kp_pr_cta', array(
+			'section'     => 'kp_pr',
+			'type'        => 'text',
+			'label'       => __( '⑦ ボタンの文字', 'kyosuki-pop' ),
+			'description' => __( '入力例: CHECK → / 詳しく見る / 楽天で見る', 'kyosuki-pop' ),
+			'input_attrs' => array( 'placeholder' => 'CHECK →' ),
+		) );
 
 		// === Poll (カップル投票) ===
 		$wp->add_section( 'kp_poll', array( 'title' => __( 'カップル投票', 'kyosuki-pop' ), 'panel' => 'kp_panel' ) );
