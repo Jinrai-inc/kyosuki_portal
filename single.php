@@ -56,6 +56,17 @@ get_header(); ?>
 		<?php wp_link_pages( array( 'before' => '<nav class="kp-pagelinks">', 'after' => '</nav>' ) ); ?>
 	</div>
 
+	<?php
+	$post_tags = get_the_terms( get_the_ID(), 'post_tag' );
+	if ( $post_tags && ! is_wp_error( $post_tags ) ) : ?>
+		<div class="kp-single__tags">
+			<span class="kp-single__tags-label">★ TAGS ♡</span>
+			<?php foreach ( $post_tags as $tag ) : ?>
+				<a class="kp-chip kp-chip--tag" href="<?php echo esc_url( get_term_link( $tag ) ); ?>">#<?php echo esc_html( $tag->name ); ?></a>
+			<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
+
 	<aside class="kp-share">
 		<p class="kp-share__title">★ SHARE ♡ ★</p>
 		<div class="kp-share__list">

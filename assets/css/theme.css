@@ -833,12 +833,27 @@ img { max-width: 100%; height: auto; display: block; }
   border: 3px solid var(--kp-ink);
   border-radius: 12px;
   display: grid; place-items: center;
-  font-size: 32px; color: #fff;
-  text-shadow: 2px 2px 0 var(--kp-ink);
+  padding: 6px;
+  font-size: 13px; font-weight: 900; color: var(--kp-ink);
+  text-align: center; line-height: 1.2; word-break: break-word;
+  text-decoration: none;
   transition: .2s;
   box-shadow: 2px 2px 0 var(--kp-ink);
 }
 .kp-ig:hover { transform: scale(1.1) rotate(-4deg); box-shadow: 4px 4px 0 var(--kp-ink); z-index: 2; }
+
+/* Single post tag list */
+.kp-single__tags {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin: 24px 0;
+}
+.kp-single__tags-label {
+  font-weight: 900; color: var(--kp-pink-deep);
+}
+.kp-chip--tag {
+  background: #fff;
+  color: var(--kp-ink);
+}
 
 /* ==========================================================================
    Page hero (archive / search / about)

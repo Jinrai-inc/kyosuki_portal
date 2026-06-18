@@ -36,12 +36,6 @@
 					$tone = $tones[ $i % count( $tones ) ];
 					printf( '<a class="kp-chip" style="background:%s" href="%s">#%s</a>', esc_attr( $tone ), esc_url( get_term_link( $t ) ), esc_html( $t->name ) );
 				}
-			} else {
-				$d = array( '沖縄編', '北海道編', '修学旅行', '春休み編', '夏休み編', '卒業編' );
-				foreach ( $d as $i => $n ) {
-					$tone = $tones[ $i % count( $tones ) ];
-					printf( '<a class="kp-chip" style="background:%s" href="#">#%s</a>', esc_attr( $tone ), esc_html( $n ) );
-				}
 			}
 			?>
 		</div>
@@ -59,10 +53,6 @@
 						esc_url( get_term_link( $g ) ),
 						esc_html( $g->name )
 					);
-				}
-			} else {
-				foreach ( array( '密着', 'コーデ', 'PR', '考察', 'ロケ地' ) as $g ) {
-					printf( '<a class="kp-chip" style="background:%s" href="#">#%s</a>', esc_attr( kyosuki_pop_genre_color( $g ) ), esc_html( $g ) );
 				}
 			}
 			?>

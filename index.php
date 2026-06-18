@@ -77,16 +77,6 @@ $arcs = get_terms( array( 'taxonomy' => 'kp_arc', 'hide_empty' => false, 'number
 					esc_attr( $tone ), esc_url( get_term_link( $t ) ), esc_html( $em ), esc_html( $t->name ), (int) $t->count
 				);
 			}
-		else :
-			$dummy = array( '沖縄編', '北海道編', '修学旅行', '春休み編', '夏休み編', '卒業編' );
-			foreach ( $dummy as $i => $name ) {
-				$tone = $tones[ $i % count( $tones ) ];
-				$em   = $emojis[ $i % count( $emojis ) ];
-				printf(
-					'<a class="kp-chip kp-chip--lg" style="background:%s" href="#"><span class="kp-chip__em">%s</span><span class="kp-chip__txt">#%s</span><span class="kp-chip__cnt">%d posts</span></a>',
-					esc_attr( $tone ), esc_html( $em ), esc_html( $name ), 0
-				);
-			}
 		endif;
 		?>
 	</div>
@@ -236,16 +226,9 @@ $cast_q = new WP_Query( array( 'post_type' => 'cast', 'posts_per_page' => 8 ) );
 				<span class="kp-cast__name"><?php the_title(); ?></span>
 			</a>
 		<?php endwhile; wp_reset_postdata();
-		else :
-			$dummy = array( 'りく', 'みお', 'ゆうた', 'あい', 'けんと', 'なな', 'そら', 'まりん' );
-			foreach ( $dummy as $i => $name ) {
-				$tone = $tones[ $i % count( $tones ) ];
-				printf(
-					'<a class="kp-cast" href="#" style="--tone:%s"><span class="kp-cast__avatar"><img src="%s" alt="" /></span><span class="kp-cast__name">%s</span></a>',
-					esc_attr( $tone ), esc_url( kyosuki_pop_placeholder_url( $i ) ), esc_html( $name )
-				);
-			}
-		endif; ?>
+		else : ?>
+			<p class="kp-empty">★ まだ出演者投稿がありません ★</p>
+		<?php endif; ?>
 	</div>
 </section>
 
@@ -270,30 +253,33 @@ $couple_q = new WP_Query( array( 'post_type' => 'couple', 'posts_per_page' => 6 
 				<span class="kp-couple__name"><?php the_title(); ?></span>
 			</a>
 		<?php endwhile; wp_reset_postdata();
-		else :
-			$cps = array( 'りく ♡ みお', 'ゆうた ♡ あい', 'けんと ♡ なな', 'そら ♡ まりん', 'あおい ♡ かれん', 'はる ♡ ゆめ' );
-			foreach ( $cps as $i => $cp ) {
-				printf(
-					'<a class="kp-couple" href="#"><span class="kp-couple__media"><img src="%s" alt="" /><span class="kp-couple__heart">♡</span></span><span class="kp-couple__name">%s</span></a>',
-					esc_url( kyosuki_pop_placeholder_url( $i + 2 ) ), esc_html( $cp )
-				);
-			}
-		endif; ?>
+		else : ?>
+			<p class="kp-empty">★ まだカップル投稿がありません ★</p>
+		<?php endif; ?>
 	</div>
 </section>
 
 <?php
-// ===== 7. INSTAGRAM-LIKE STRIP =====
+// ===== 7. POPULAR TAGS =====
+$pop_tags = get_terms( array(
+	'taxonomy'   => 'post_tag',
+	'orderby'    => 'count',
+	'order'      => 'DESC',
+	'number'     => 12,
+	'hide_empty' => true,
+) );
+if ( ! is_wp_error( $pop_tags ) && $pop_tags ) :
 ?>
 <section class="kp-section kp-section--ig">
 	<h2 class="kp-section__head">★ #今日好き タグでチェック ★</h2>
 	<div class="kp-ig-strip">
-		<?php for ( $i = 0; $i < 10; $i++ ) : ?>
-			<a class="kp-ig" href="#" style="background:<?php echo esc_attr( $tones[ $i % count( $tones ) ] ); ?>">
-				<span>♡</span>
+		<?php foreach ( $pop_tags as $i => $tag ) : ?>
+			<a class="kp-ig" href="<?php echo esc_url( get_term_link( $tag ) ); ?>" style="background:<?php echo esc_attr( $tones[ $i % count( $tones ) ] ); ?>" title="<?php echo esc_attr( sprintf( '#%s (%d)', $tag->name, (int) $tag->count ) ); ?>">
+				<span>#<?php echo esc_html( $tag->name ); ?></span>
 			</a>
-		<?php endfor; ?>
+		<?php endforeach; ?>
 	</div>
 </section>
+<?php endif; ?>
 
 <?php get_footer(); ?>
