@@ -45,6 +45,7 @@ class Kyosuki_Pop_Poll_CPT {
 
 		// CSV export per poll
 		add_action( 'admin_post_kp_poll_csv',     array( __CLASS__, 'export_csv' ) );
+		add_action( 'admin_post_kp_poll_reset',   array( __CLASS__, 'reset_votes' ) );
 
 		// Disable Gutenberg for this CPT (we use a classic meta box)
 		add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'force_classic_editor' ), 10, 2 );
@@ -238,6 +239,10 @@ class Kyosuki_Pop_Poll_CPT {
 		$data  = self::calculate( $post->ID );
 		$total = (int) $data['sum'];
 
+		if ( ! empty( $_GET['kp_reset'] ) ) {
+			echo '<div class="notice notice-success" style="margin:0 0 12px;"><p>このラウンドの票数を 0 にリセットしました。</p></div>';
+		}
+
 		if ( ! $data['options'] ) {
 			echo '<p>選択肢を追加して保存すると、投票結果がここに表示されます。</p>';
 			return;
@@ -246,6 +251,10 @@ class Kyosuki_Pop_Poll_CPT {
 		$csv_url = wp_nonce_url(
 			admin_url( 'admin-post.php?action=kp_poll_csv&poll_id=' . (int) $post->ID ),
 			'kp_poll_csv_' . $post->ID
+		);
+		$reset_url = wp_nonce_url(
+			admin_url( 'admin-post.php?action=kp_poll_reset&poll_id=' . (int) $post->ID ),
+			'kp_poll_reset_' . $post->ID
 		);
 
 		echo '<p>総投票数: <strong>' . (int) $total . '</strong></p>';
@@ -259,7 +268,12 @@ class Kyosuki_Pop_Poll_CPT {
 			);
 		}
 		echo '</tbody></table>';
-		echo '<p style="margin-top:16px;"><a class="button" href="' . esc_url( $csv_url ) . '">CSV ダウンロード</a></p>';
+		echo '<p style="margin-top:16px;">';
+		echo '<a class="button" href="' . esc_url( $csv_url ) . '">CSV ダウンロード</a> ';
+		if ( $total > 0 ) {
+			echo '<a class="button" style="color:#a00;" href="' . esc_url( $reset_url ) . '" onclick="return confirm(\'このラウンドの投票数を 0 に戻しますか？\\n（過去のアーカイブには影響しません）\');">票を 0 にリセット</a>';
+		}
+		echo '</p>';
 	}
 
 	/* =========================================================
@@ -353,6 +367,27 @@ class Kyosuki_Pop_Poll_CPT {
 	/* =========================================================
 	 * CSV export
 	 * ========================================================= */
+
+	public static function reset_votes() {
+		$post_id = (int) ( $_REQUEST['poll_id'] ?? 0 );
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( '権限がありません' );
+		}
+		if ( ! wp_verify_nonce( $_REQUEST['_wpnonce'] ?? '', 'kp_poll_reset_' . $post_id ) ) {
+			wp_die( '権限がありません' );
+		}
+		// 票だけを 0 に戻す（選択肢・期間は維持）
+		delete_post_meta( $post_id, self::META_VOTES );
+		// 同じ IP の COOLDOWN もクリアして、検証用に再投票可能にする
+		global $wpdb;
+		$like = $wpdb->esc_like( '_transient_' . Kyosuki_Pop_Poll::TRANSIENT . $post_id . '_' ) . '%';
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
+		$like2 = $wpdb->esc_like( '_transient_timeout_' . Kyosuki_Pop_Poll::TRANSIENT . $post_id . '_' ) . '%';
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $like2 ) );
+
+		wp_safe_redirect( add_query_arg( array( 'kp_reset' => 1 ), get_edit_post_link( $post_id, 'redirect' ) ) );
+		exit;
+	}
 
 	public static function export_csv() {
 		$post_id = (int) ( $_REQUEST['poll_id'] ?? 0 );
