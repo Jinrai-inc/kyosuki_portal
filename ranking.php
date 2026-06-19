@@ -1,8 +1,13 @@
 <?php
 /**
- * Ranking page — PV 順 人気記事ランキング (/ranking/)
+ * Template Name: ★ ランキング
  *
- * inc/template-functions.php の kyosuki_pop_ranking_template() から呼ばれる仮想ページ。
+ * Ranking page — PV 順 人気記事ランキング
+ *
+ * 通常は「ランキング」固定ページ（slug=ranking）に自動割当される
+ * Page Template として利用される。inc/template-functions.php の
+ * kyosuki_pop_ensure_ranking_page() が初回起動時に対応する固定
+ * ページを作成・割当する。
  *
  * @package Kyosuki_Pop
  */

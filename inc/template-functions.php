@@ -150,56 +150,87 @@ function kyosuki_pop_placeholder_url( $seed = 0 ) {
 }
 
 /**
- * /ranking/ 仮想ページのリライトルール + テンプレート切替
+ * ranking.php を Page Template として割り当てた固定ページを保証する。
+ *
+ * リライトルール方式は、サーバ環境やキャッシュ系プラグインで
+ * 404 化する事故が多かったため、WordPress 標準の固定ページとして
+ * 実体化する方式に変更。一度作成すれば /ranking/ が実ページに
+ * なるので、どんなパーマリンク設定でも常に 200 が返る。
  */
-function kyosuki_pop_register_ranking_route() {
-	add_rewrite_rule( '^ranking/?$', 'index.php?kp_ranking=1', 'top' );
-}
-add_action( 'init', 'kyosuki_pop_register_ranking_route' );
-
-function kyosuki_pop_ranking_query_vars( $vars ) {
-	$vars[] = 'kp_ranking';
-	return $vars;
-}
-add_filter( 'query_vars', 'kyosuki_pop_ranking_query_vars' );
-
-function kyosuki_pop_ranking_template( $template ) {
-	if ( get_query_var( 'kp_ranking' ) ) {
-		$custom = locate_template( 'ranking.php' );
-		if ( $custom ) {
-			status_header( 200 );
-			return $custom;
+function kyosuki_pop_ensure_ranking_page() {
+	$cached = (int) get_option( 'kp_ranking_page_id' );
+	if ( $cached && get_post( $cached ) && get_post_status( $cached ) === 'publish' ) {
+		// 念のためテンプレ割当を維持
+		if ( get_post_meta( $cached, '_wp_page_template', true ) !== 'ranking.php' ) {
+			update_post_meta( $cached, '_wp_page_template', 'ranking.php' );
 		}
+		return $cached;
 	}
-	return $template;
+
+	// 1) 既存ページ: ranking.php テンプレが割り当てられているもの
+	$q = new WP_Query( array(
+		'post_type'      => 'page',
+		'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+		'meta_key'       => '_wp_page_template',
+		'meta_value'     => 'ranking.php',
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	) );
+	if ( ! empty( $q->posts ) ) {
+		$id = (int) $q->posts[0];
+		if ( get_post_status( $id ) !== 'publish' ) {
+			wp_update_post( array( 'ID' => $id, 'post_status' => 'publish' ) );
+		}
+		update_option( 'kp_ranking_page_id', $id, false );
+		return $id;
+	}
+
+	// 2) slug 'ranking' が空いていれば、その slug で作成
+	$existing = get_page_by_path( 'ranking', OBJECT, 'page' );
+	$desired_slug = $existing ? 'ranking-list' : 'ranking';
+
+	$id = wp_insert_post( array(
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'ランキング',
+		'post_name'    => $desired_slug,
+		'post_content' => '',
+		'meta_input'   => array( '_wp_page_template' => 'ranking.php' ),
+	), true );
+
+	if ( $id && ! is_wp_error( $id ) ) {
+		update_option( 'kp_ranking_page_id', (int) $id, false );
+		return (int) $id;
+	}
+	return 0;
 }
-add_filter( 'template_include', 'kyosuki_pop_ranking_template' );
+add_action( 'after_switch_theme', 'kyosuki_pop_ensure_ranking_page' );
+add_action( 'admin_init',         'kyosuki_pop_ensure_ranking_page' );
 
 /**
- * リライトルールが欠落していれば自動で再生成。
- * テーマ初回読込・WP コア更新後・キャッシュ系プラグインの干渉で
- * /ranking/ が 404 になる事故を防ぐ。
- */
-function kyosuki_pop_maybe_flush_rules() {
-	$rules = get_option( 'rewrite_rules' );
-	// パーマリンクが「基本」(Plain) のとき rewrite_rules は空。その時はフラッシュ不要。
-	if ( ! get_option( 'permalink_structure' ) ) return;
-	if ( is_array( $rules ) && isset( $rules['^ranking/?$'] ) ) return;
-	flush_rewrite_rules( false );
-}
-add_action( 'init', 'kyosuki_pop_maybe_flush_rules', 999 );
-add_action( 'after_switch_theme', 'flush_rewrite_rules' );
-
-/**
- * ランキングページのURL。パーマリンク設定が「基本」のときは
- * ?kp_ranking=1 で動くようフォールバック。
+ * ランキングページのURL。固定ページ ID が無ければ home に戻すフォールバック付き。
  */
 function kyosuki_pop_ranking_url() {
-	if ( get_option( 'permalink_structure' ) ) {
-		return home_url( '/ranking/' );
+	$id = kyosuki_pop_ensure_ranking_page();
+	if ( $id ) {
+		$url = get_permalink( $id );
+		if ( $url ) return $url;
 	}
-	return add_query_arg( 'kp_ranking', 1, home_url( '/' ) );
+	return home_url( '/' );
 }
+
+/**
+ * 旧バージョン (1.6.1〜1.6.3) で登録した /ranking/ リライトルール
+ * + kp_ranking_page_id 未設定の環境を一度だけクリーンアップ。
+ */
+function kyosuki_pop_cleanup_legacy_ranking() {
+	if ( get_option( 'kp_ranking_cleanup_v17' ) ) return;
+	flush_rewrite_rules( false );
+	kyosuki_pop_ensure_ranking_page();
+	update_option( 'kp_ranking_cleanup_v17', 1, false );
+}
+add_action( 'init', 'kyosuki_pop_cleanup_legacy_ranking', 9999 );
 
 /**
  * カラーチップ HTML
