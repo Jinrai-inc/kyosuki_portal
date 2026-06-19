@@ -76,9 +76,9 @@
 
 		function showError( txt ) {
 			if ( ! errEl ) return;
-			errEl.textContent = txt;
+			errEl.textContent = '⚠ ' + txt;
 			errEl.hidden = false;
-			setTimeout( function () { errEl.hidden = true; }, 3000 );
+			// 自動非表示はしない（運営者が原因を見落とさないため）
 		}
 
 		function vote( hash, li ) {

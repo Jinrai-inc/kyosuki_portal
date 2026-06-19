@@ -623,6 +623,18 @@ img { max-width: 100%; height: auto; display: block; }
 .kp-poll.is-voted .kp-poll__list li { cursor: default; }
 .kp-poll.is-voted .kp-poll__opt { cursor: default; }
 .kp-poll__msg { background: var(--kp-yellow); border: 2px solid var(--kp-ink); border-radius: 12px; padding: 8px 12px; font-weight: 900; text-align: center; font-size: 12px; margin: 10px 0 0; }
+.kp-poll__err {
+  background: #ffe4ec;
+  border: 2px solid #d33;
+  color: #d33;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  box-shadow: 3px 3px 0 #d33;
+}
 .kp-likebtn {
   background: #fff; color: var(--kp-pink-deep);
   border: 2px solid var(--kp-ink); border-radius: 999px;

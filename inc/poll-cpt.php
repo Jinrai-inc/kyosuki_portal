@@ -46,6 +46,7 @@ class Kyosuki_Pop_Poll_CPT {
 		// CSV export per poll
 		add_action( 'admin_post_kp_poll_csv',     array( __CLASS__, 'export_csv' ) );
 		add_action( 'admin_post_kp_poll_reset',   array( __CLASS__, 'reset_votes' ) );
+		add_action( 'admin_post_kp_poll_log_clear', array( __CLASS__, 'clear_log_action' ) );
 
 		// Disable Gutenberg for this CPT (we use a classic meta box)
 		add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'force_classic_editor' ), 10, 2 );
@@ -195,6 +196,8 @@ class Kyosuki_Pop_Poll_CPT {
 			array( __CLASS__, 'render_status_box' ), self::POST_TYPE, 'side', 'high' );
 		add_meta_box( 'kp_poll_results_box', __( '③ 投票結果', 'kyosuki-pop' ),
 			array( __CLASS__, 'render_results_box' ), self::POST_TYPE, 'normal', 'default' );
+		add_meta_box( 'kp_poll_log_box',     __( '④ 直近の投票ログ（診断用）', 'kyosuki-pop' ),
+			array( __CLASS__, 'render_log_box' ), self::POST_TYPE, 'normal', 'low' );
 	}
 
 	public static function render_options_box( $post ) {
@@ -233,6 +236,44 @@ class Kyosuki_Pop_Poll_CPT {
 			※ 別のラウンドを「現在」にすると、こちらは自動的にアーカイブされます。
 		</p>
 		<?php
+	}
+
+	public static function render_log_box( $post ) {
+		$log = class_exists( 'Kyosuki_Pop_Poll' ) ? Kyosuki_Pop_Poll::get_log() : array();
+		echo '<p style="color:#6B5A8A;margin-top:0;">直近 20 件の投票リクエストを記録しています。トップページで投票を試した結果が、どの選択肢に・成功 / 失敗どちらで届いたかを確認できます。<br>「同じ IP」は IP アドレスのハッシュ先頭 8 文字（個人を特定する情報は保存しません）。</p>';
+		if ( ! $log ) {
+			echo '<p>まだ投票ログはありません。</p>';
+			return;
+		}
+		echo '<table class="widefat striped"><thead><tr><th style="width:150px;">時刻</th><th>選択肢</th><th style="width:120px;">同じ IP かどうか</th><th style="width:140px;">結果</th></tr></thead><tbody>';
+		foreach ( $log as $row ) {
+			$result_label = '';
+			$result_color = '#1A0B3D';
+			switch ( $row['result'] ?? '' ) {
+				case 'ok':           $result_label = '✓ 成功';           $result_color = '#0a7c2f'; break;
+				case 'ok (admin)':   $result_label = '✓ 成功（管理者）'; $result_color = '#0a7c2f'; break;
+				case 'kp_already_voted': $result_label = '× 同 IP 連投ブロック'; $result_color = '#a00'; break;
+				case 'kp_invalid_option': $result_label = '× 無効な選択肢';     $result_color = '#a00'; break;
+				case 'kp_no_poll':       $result_label = '× ラウンド未設定';   $result_color = '#a00'; break;
+				case 'kp_archived':      $result_label = '× 終了済ラウンド';   $result_color = '#a00'; break;
+				default:                 $result_label = esc_html( $row['result'] );
+			}
+			printf(
+				'<tr><td>%s</td><td>%s</td><td><code>%s</code></td><td style="color:%s;font-weight:900;">%s</td></tr>',
+				esc_html( $row['time'] ?? '' ),
+				esc_html( $row['option'] ?: '—' ),
+				esc_html( $row['ip'] ?? '' ),
+				esc_attr( $result_color ),
+				$result_label
+			);
+		}
+		echo '</tbody></table>';
+
+		$clear_url = wp_nonce_url(
+			admin_url( 'admin-post.php?action=kp_poll_log_clear' ),
+			'kp_poll_log_clear'
+		);
+		echo '<p style="margin-top:12px;"><a class="button button-small" href="' . esc_url( $clear_url ) . '" onclick="return confirm(\'ログを消去しますか？\');">ログを消去</a></p>';
 	}
 
 	public static function render_results_box( $post ) {
@@ -367,6 +408,17 @@ class Kyosuki_Pop_Poll_CPT {
 	/* =========================================================
 	 * CSV export
 	 * ========================================================= */
+
+	public static function clear_log_action() {
+		if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'] ?? '', 'kp_poll_log_clear' ) ) {
+			wp_die( '権限がありません' );
+		}
+		if ( class_exists( 'Kyosuki_Pop_Poll' ) ) {
+			Kyosuki_Pop_Poll::clear_log();
+		}
+		wp_safe_redirect( wp_get_referer() ?: admin_url( 'edit.php?post_type=' . self::POST_TYPE ) );
+		exit;
+	}
 
 	public static function reset_votes() {
 		$post_id = (int) ( $_REQUEST['poll_id'] ?? 0 );

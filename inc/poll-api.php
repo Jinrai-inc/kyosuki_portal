@@ -17,7 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 class Kyosuki_Pop_Poll {
 
 	const TRANSIENT = 'kp_poll_ip_';
-	const COOLDOWN  = DAY_IN_SECONDS;
+	const COOLDOWN  = HOUR_IN_SECONDS;        // 同一 IP からの連投ガード（1 時間）
+	const LOG_OPT   = 'kp_poll_recent_log';   // 直近 20 件の投票ログ
+	const LOG_MAX   = 20;
 
 	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
@@ -110,31 +112,42 @@ class Kyosuki_Pop_Poll {
 	public static function rest_vote( $request ) {
 		$id = self::resolve_poll_id( $request );
 		if ( ! $id ) {
+			self::log( 0, '', '', 'kp_no_poll' );
 			return new WP_Error( 'kp_no_poll', '投票が設定されていません', array( 'status' => 404 ) );
 		}
 		// 投票はアクティブなラウンドにのみ許可
 		if ( Kyosuki_Pop_Poll_CPT::get_active_id() !== (int) $id ) {
+			self::log( $id, '', '', 'kp_archived' );
 			return new WP_Error( 'kp_archived', 'このラウンドは終了しています', array( 'status' => 410 ) );
 		}
 
-		$ip   = self::client_ip();
-		$tkey = self::TRANSIENT . $id . '_' . md5( $ip );
-		if ( get_transient( $tkey ) ) {
-			return new WP_Error( 'kp_already_voted', '既に投票済みです', array( 'status' => 429 ) );
+		$ip       = self::client_ip();
+		$ip_hash  = md5( $ip );
+		$tkey     = self::TRANSIENT . $id . '_' . $ip_hash;
+		// 管理者でログイン中はクールダウンをスキップ（運営者の検証用）
+		$is_admin = current_user_can( 'manage_options' );
+
+		if ( ! $is_admin && get_transient( $tkey ) ) {
+			self::log( $id, '', $ip_hash, 'kp_already_voted' );
+			return new WP_Error( 'kp_already_voted', '同じ回線から既に投票されています。1 時間ほど経ってから再度お試しください。', array( 'status' => 429 ) );
 		}
 
 		$hash  = (string) $request->get_param( 'option_hash' );
 		$opts  = Kyosuki_Pop_Poll_CPT::options_list( $id );
-		$valid = false;
+		$valid_name = '';
 		foreach ( $opts as $o ) {
-			if ( hash_equals( $o['hash'], $hash ) ) { $valid = true; break; }
+			if ( hash_equals( $o['hash'], $hash ) ) { $valid_name = $o['name']; break; }
 		}
-		if ( ! $valid ) {
+		if ( $valid_name === '' ) {
+			self::log( $id, $hash, $ip_hash, 'kp_invalid_option' );
 			return new WP_Error( 'kp_invalid_option', '無効な選択肢', array( 'status' => 400 ) );
 		}
 
 		Kyosuki_Pop_Poll_CPT::increment_vote( $id, $hash );
-		set_transient( $tkey, 1, self::COOLDOWN );
+		if ( ! $is_admin ) {
+			set_transient( $tkey, 1, self::COOLDOWN );
+		}
+		self::log( $id, $valid_name, $ip_hash, $is_admin ? 'ok (admin)' : 'ok' );
 
 		return self::rest_get( $request );
 	}
@@ -146,6 +159,36 @@ class Kyosuki_Pop_Poll {
 			}
 		}
 		return '0.0.0.0';
+	}
+
+	/* =========================================================
+	 * Diagnostic log（最新 LOG_MAX 件をリングバッファ的に保持）
+	 * ========================================================= */
+
+	protected static function log( $poll_id, $option_name, $ip_hash, $result ) {
+		$entry = array(
+			'time'    => current_time( 'mysql' ),
+			'poll_id' => (int) $poll_id,
+			'option'  => (string) $option_name,
+			'ip'      => substr( (string) $ip_hash, 0, 8 ),
+			'result'  => (string) $result,
+		);
+		$log = get_option( self::LOG_OPT, array() );
+		if ( ! is_array( $log ) ) $log = array();
+		array_unshift( $log, $entry );
+		if ( count( $log ) > self::LOG_MAX ) {
+			$log = array_slice( $log, 0, self::LOG_MAX );
+		}
+		update_option( self::LOG_OPT, $log, false );
+	}
+
+	public static function get_log() {
+		$log = get_option( self::LOG_OPT, array() );
+		return is_array( $log ) ? $log : array();
+	}
+
+	public static function clear_log() {
+		delete_option( self::LOG_OPT );
 	}
 }
 Kyosuki_Pop_Poll::init();
