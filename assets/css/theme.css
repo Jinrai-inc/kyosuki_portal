@@ -453,6 +453,21 @@ img { max-width: 100%; height: auto; display: block; }
   padding: 3px 10px; font-size: 10px; font-weight: 900;
   border-radius: 999px;
 }
+.kp-card__rank {
+  position: absolute; top: 8px; left: 8px;
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  background: var(--kp-yellow); color: var(--kp-ink);
+  border: 3px solid var(--kp-ink); border-radius: 50%;
+  font-family: "Reggae One", "LINE Seed JP", sans-serif;
+  font-weight: 900; font-size: 18px;
+  box-shadow: 2px 2px 0 var(--kp-ink);
+  z-index: 2;
+}
+.kp-card__rank--1 { background: #FFD700; }
+.kp-card__rank--2 { background: #E0E0E0; }
+.kp-card__rank--3 { background: #FF7AC6; color: #fff; }
+.kp-card__rank--n { background: #fff; font-size: 14px; }
 .kp-card__body { padding: 14px 14px 16px; }
 .kp-card__body .kp-chip { font-size: 10px; padding: 3px 10px; box-shadow: 2px 2px 0 var(--kp-ink); }
 .kp-card__title {

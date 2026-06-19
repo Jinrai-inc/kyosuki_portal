@@ -150,6 +150,43 @@ function kyosuki_pop_placeholder_url( $seed = 0 ) {
 }
 
 /**
+ * /ranking/ 仮想ページのリライトルール + テンプレート切替
+ */
+function kyosuki_pop_register_ranking_route() {
+	add_rewrite_rule( '^ranking/?$', 'index.php?kp_ranking=1', 'top' );
+}
+add_action( 'init', 'kyosuki_pop_register_ranking_route' );
+
+function kyosuki_pop_ranking_query_vars( $vars ) {
+	$vars[] = 'kp_ranking';
+	return $vars;
+}
+add_filter( 'query_vars', 'kyosuki_pop_ranking_query_vars' );
+
+function kyosuki_pop_ranking_template( $template ) {
+	if ( get_query_var( 'kp_ranking' ) ) {
+		$custom = locate_template( 'ranking.php' );
+		if ( $custom ) {
+			status_header( 200 );
+			return $custom;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'kyosuki_pop_ranking_template' );
+
+/**
+ * リライトルール初回フラッシュ（テーマ有効化検知 + 初回 init 後の 1 回だけ）
+ */
+function kyosuki_pop_maybe_flush_rules() {
+	if ( (int) get_option( 'kp_routes_flushed_version' ) === 2 ) return;
+	flush_rewrite_rules( false );
+	update_option( 'kp_routes_flushed_version', 2, false );
+}
+add_action( 'init', 'kyosuki_pop_maybe_flush_rules', 99 );
+add_action( 'after_switch_theme', function () { delete_option( 'kp_routes_flushed_version' ); } );
+
+/**
  * カラーチップ HTML
  */
 function kyosuki_pop_genre_chip( $term ) {

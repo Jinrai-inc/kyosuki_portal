@@ -121,9 +121,16 @@
 			opt.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
 				if ( voted ) return;
+				// クロージャに頼らず、実際のクリック対象から li を辿る
+				var clickedLi = ( e.currentTarget && e.currentTarget.closest )
+					? e.currentTarget.closest( 'li[data-kp-opt-hash]' )
+					: li;
+				if ( ! clickedLi ) return;
+				var hash = clickedLi.dataset.kpOptHash || '';
+				if ( ! hash ) return;
 				items.forEach( function ( x ) { x.classList.remove( 'is-active' ); } );
-				li.classList.add( 'is-active' );
-				vote( li.dataset.kpOptHash || '', li );
+				clickedLi.classList.add( 'is-active' );
+				vote( hash, clickedLi );
 			} );
 		} );
 
