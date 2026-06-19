@@ -176,15 +176,30 @@ function kyosuki_pop_ranking_template( $template ) {
 add_filter( 'template_include', 'kyosuki_pop_ranking_template' );
 
 /**
- * リライトルール初回フラッシュ（テーマ有効化検知 + 初回 init 後の 1 回だけ）
+ * リライトルールが欠落していれば自動で再生成。
+ * テーマ初回読込・WP コア更新後・キャッシュ系プラグインの干渉で
+ * /ranking/ が 404 になる事故を防ぐ。
  */
 function kyosuki_pop_maybe_flush_rules() {
-	if ( (int) get_option( 'kp_routes_flushed_version' ) === 2 ) return;
+	$rules = get_option( 'rewrite_rules' );
+	// パーマリンクが「基本」(Plain) のとき rewrite_rules は空。その時はフラッシュ不要。
+	if ( ! get_option( 'permalink_structure' ) ) return;
+	if ( is_array( $rules ) && isset( $rules['^ranking/?$'] ) ) return;
 	flush_rewrite_rules( false );
-	update_option( 'kp_routes_flushed_version', 2, false );
 }
-add_action( 'init', 'kyosuki_pop_maybe_flush_rules', 99 );
-add_action( 'after_switch_theme', function () { delete_option( 'kp_routes_flushed_version' ); } );
+add_action( 'init', 'kyosuki_pop_maybe_flush_rules', 999 );
+add_action( 'after_switch_theme', 'flush_rewrite_rules' );
+
+/**
+ * ランキングページのURL。パーマリンク設定が「基本」のときは
+ * ?kp_ranking=1 で動くようフォールバック。
+ */
+function kyosuki_pop_ranking_url() {
+	if ( get_option( 'permalink_structure' ) ) {
+		return home_url( '/ranking/' );
+	}
+	return add_query_arg( 'kp_ranking', 1, home_url( '/' ) );
+}
 
 /**
  * カラーチップ HTML

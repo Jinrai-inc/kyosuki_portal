@@ -30,7 +30,7 @@
 				} else { ?>
 					<ul class="kp-footer__list">
 						<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>">HOME</a></li>
-						<li><a href="<?php echo esc_url( home_url( '/ranking/' ) ); ?>">RANKING</a></li>
+						<li><a href="<?php echo esc_url( kyosuki_pop_ranking_url() ); ?>">RANKING</a></li>
 						<li><a href="<?php echo esc_url( home_url( '/couple/' ) ); ?>">CP図鑑</a></li>
 						<li><a href="<?php echo esc_url( home_url( '/cast/' ) ); ?>">CAST</a></li>
 					</ul>
@@ -62,7 +62,7 @@
 	<ul class="kp-tabbar__list">
 		<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo is_front_page() ? 'is-current' : ''; ?>"><span class="kp-tabbar__icon">🏠</span><span class="kp-tabbar__label">HOME</span></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/category/news/' ) ); ?>"><span class="kp-tabbar__icon">📰</span><span class="kp-tabbar__label">NEWS</span></a></li>
-		<li><a href="<?php echo esc_url( home_url( '/ranking/' ) ); ?>" class="kp-tabbar__center"><span class="kp-tabbar__icon">⭐</span><span class="kp-tabbar__label">RANK</span></a></li>
+		<li><a href="<?php echo esc_url( kyosuki_pop_ranking_url() ); ?>" class="kp-tabbar__center"><span class="kp-tabbar__icon">⭐</span><span class="kp-tabbar__label">RANK</span></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/couple/' ) ); ?>"><span class="kp-tabbar__icon">♡</span><span class="kp-tabbar__label">CP</span></a></li>
 		<li><a href="<?php echo esc_url( home_url( '/cast/' ) ); ?>"><span class="kp-tabbar__icon">👤</span><span class="kp-tabbar__label">CAST</span></a></li>
 	</ul>
