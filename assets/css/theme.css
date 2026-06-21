@@ -1339,7 +1339,8 @@ img { max-width: 100%; height: auto; display: block; }
   .kp-nav, .kp-headersearch { display: none; }
   .kp-hamburger { display: flex; }
   .kp-tabbar { display: block; }
-  .kp-header__inner { padding: 12px 14px; gap: 10px; }
+  .kp-header__inner { padding: 12px 20px 12px 14px; gap: 10px; }
+  .kp-header__inner .kp-hamburger { margin-left: auto; }
   .kp-logo__main { font-size: 18px; }
   .kp-logo__sub { display: none; }
   .kp-main { padding: 16px 12px; }
