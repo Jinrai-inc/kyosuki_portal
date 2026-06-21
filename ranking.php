@@ -41,7 +41,7 @@ get_header(); ?>
 					</a>
 					<div class="kp-card__body">
 						<?php if ( $genre ) : ?>
-							<span class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre->name ) ); ?>">#<?php echo esc_html( $genre->name ); ?></span>
+							<span class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre ) ); ?>">#<?php echo esc_html( $genre->name ); ?></span>
 						<?php endif; ?>
 						<h3 class="kp-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 						<p class="kp-card__meta">

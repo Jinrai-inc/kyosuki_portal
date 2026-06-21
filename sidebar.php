@@ -33,8 +33,15 @@
 			$tones = array( '#FF7AC6', '#5AC8FA', '#FFE066', '#9B5DE5', '#C9F28A', '#E83E8C' );
 			if ( ! is_wp_error( $arcs ) && $arcs ) {
 				foreach ( $arcs as $i => $t ) {
-					$tone = $tones[ $i % count( $tones ) ];
-					printf( '<a class="kp-chip" style="background:%s" href="%s">#%s</a>', esc_attr( $tone ), esc_url( get_term_link( $t ) ), esc_html( $t->name ) );
+					$custom = get_term_meta( $t->term_id, 'kp_color', true );
+					$tone   = $custom ?: $tones[ $i % count( $tones ) ];
+					$emoji  = kyosuki_pop_term_emoji( $t );
+					printf( '<a class="kp-chip" style="background:%s" href="%s">%s#%s</a>',
+						esc_attr( $tone ),
+						esc_url( get_term_link( $t ) ),
+						$emoji ? esc_html( $emoji ) . ' ' : '',
+						esc_html( $t->name )
+					);
 				}
 			}
 			?>
@@ -48,9 +55,11 @@
 			$gs = get_terms( array( 'taxonomy' => 'kp_genre', 'hide_empty' => false ) );
 			if ( ! is_wp_error( $gs ) && $gs ) {
 				foreach ( $gs as $g ) {
-					printf( '<a class="kp-chip" style="background:%s" href="%s">#%s</a>',
-						esc_attr( kyosuki_pop_genre_color( $g->name ) ),
+					$emoji = kyosuki_pop_term_emoji( $g );
+					printf( '<a class="kp-chip" style="background:%s" href="%s">%s#%s</a>',
+						esc_attr( kyosuki_pop_genre_color( $g ) ),
 						esc_url( get_term_link( $g ) ),
+						$emoji ? esc_html( $emoji ) . ' ' : '',
 						esc_html( $g->name )
 					);
 				}

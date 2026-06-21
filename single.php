@@ -28,7 +28,7 @@ get_header(); ?>
 				<a class="kp-chip kp-chip--ink" href="<?php echo esc_url( get_term_link( $arc ) ); ?>">#<?php echo esc_html( $arc->name ); ?></a>
 			<?php endif; ?>
 			<?php if ( $genre ) : ?>
-				<a class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre->name ) ); ?>" href="<?php echo esc_url( get_term_link( $genre ) ); ?>">#<?php echo esc_html( $genre->name ); ?></a>
+				<a class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre ) ); ?>" href="<?php echo esc_url( get_term_link( $genre ) ); ?>">#<?php echo esc_html( $genre->name ); ?></a>
 			<?php endif; ?>
 			<span class="kp-chip kp-chip--ghost">★ <?php echo esc_html( get_the_date( 'Y.n.j' ) ); ?> ★</span>
 		</div>

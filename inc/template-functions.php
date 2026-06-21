@@ -9,8 +9,20 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 /**
  * ジャンル別カラー (Y2Kポップ)
+ *
+ * 引数:
+ *   - WP_Term オブジェクト: term_meta 'kp_color' を最優先に参照、無ければ
+ *     名前ベースのマップ → デフォルトピンク
+ *   - 文字列: 旧 API 互換。名前ベースのマップ → デフォルトピンク
  */
-function kyosuki_pop_genre_color( $slug = '' ) {
+function kyosuki_pop_genre_color( $term_or_slug = '' ) {
+	if ( is_object( $term_or_slug ) && isset( $term_or_slug->term_id ) ) {
+		$custom = get_term_meta( $term_or_slug->term_id, 'kp_color', true );
+		if ( $custom ) return $custom;
+		$slug = $term_or_slug->name;
+	} else {
+		$slug = (string) $term_or_slug;
+	}
 	$map = array(
 		'密着'   => '#FF7AC6',
 		'コーデ' => '#5AC8FA',
@@ -21,6 +33,27 @@ function kyosuki_pop_genre_color( $slug = '' ) {
 		'ロケ地' => '#E83E8C',
 	);
 	return isset( $map[ $slug ] ) ? $map[ $slug ] : '#FF7AC6';
+}
+
+/**
+ * Term に設定された絵文字 (term_meta 'kp_emoji'). 未設定なら空文字。
+ */
+function kyosuki_pop_term_emoji( $term ) {
+	if ( ! is_object( $term ) || empty( $term->term_id ) ) return '';
+	return (string) get_term_meta( $term->term_id, 'kp_emoji', true );
+}
+
+/**
+ * ブログアーカイブの URL（Settings → Reading で投稿ページが
+ * 設定されていればそのページ、無ければ home_url）
+ */
+function kyosuki_pop_posts_archive_url() {
+	$posts_page = (int) get_option( 'page_for_posts' );
+	if ( $posts_page ) {
+		$url = get_permalink( $posts_page );
+		if ( $url ) return $url;
+	}
+	return home_url( '/' );
 }
 
 /**
@@ -237,7 +270,7 @@ add_action( 'init', 'kyosuki_pop_cleanup_legacy_ranking', 9999 );
  */
 function kyosuki_pop_genre_chip( $term ) {
 	if ( ! $term ) return '';
-	$color = kyosuki_pop_genre_color( $term->name );
+	$color = kyosuki_pop_genre_color( $term );
 	return sprintf(
 		'<a class="kp-chip" style="background:%s" href="%s">#%s</a>',
 		esc_attr( $color ),

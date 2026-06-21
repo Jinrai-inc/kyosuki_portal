@@ -75,11 +75,14 @@ if ( ! is_wp_error( $popular_tags ) && $popular_tags ) :
 		<?php
 		$tones = array( '#FF7AC6', '#5AC8FA', '#FFE066', '#9B5DE5', '#C9F28A', '#E83E8C' );
 		foreach ( $popular_tags as $i => $t ) {
-			$tone = $tones[ $i % count( $tones ) ];
+			$custom = get_term_meta( $t->term_id, 'kp_color', true );
+			$tone   = $custom ?: $tones[ $i % count( $tones ) ];
+			$emoji  = kyosuki_pop_term_emoji( $t );
 			printf(
-				'<a class="kp-chip kp-chip--lg" style="background:%s" href="%s"><span class="kp-chip__em">#</span><span class="kp-chip__txt">%s</span><span class="kp-chip__cnt">%s posts</span></a>',
+				'<a class="kp-chip kp-chip--lg" style="background:%s" href="%s"><span class="kp-chip__em">%s</span><span class="kp-chip__txt">%s</span><span class="kp-chip__cnt">%s posts</span></a>',
 				esc_attr( $tone ),
 				esc_url( get_term_link( $t ) ),
+				esc_html( $emoji ?: '#' ),
 				esc_html( $t->name ),
 				esc_html( number_format_i18n( (int) $t->count ) )
 			);
@@ -91,24 +94,22 @@ if ( ! is_wp_error( $popular_tags ) && $popular_tags ) :
 
 <?php
 // ===== 3. NEW ARTICLES (Magazine grid) =====
-$new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
+$new_q = new WP_Query( array( 'posts_per_page' => 6 ) );
+$more_url = kyosuki_pop_posts_archive_url();
 ?>
 <section class="kp-section">
 	<header class="kp-section__bar">
 		<h2 class="kp-section__head">★ NEW ARTICLES ★</h2>
-		<a class="kp-more" href="<?php echo esc_url( home_url( '/category/news/' ) ); ?>もっと見る →</a>
 	</header>
 
-	<p class="kp-scrollhint">記事をスライド</p>
-	<div class="kp-mag-grid kp-mag-grid--scroll" data-carousel>
+	<div class="kp-mag-grid kp-mag-grid--3">
 		<?php $i = 0; if ( $new_q->have_posts() ) : while ( $new_q->have_posts() ) : $new_q->the_post(); $i++;
-			$rotate = '';
 			$genre  = kyosuki_pop_get_primary_genre();
 			$arc    = kyosuki_pop_get_primary_arc();
 			$pid    = get_the_ID();
 			$likes  = (int) get_post_meta( $pid, 'kp_likes', true );
 		?>
-			<article class="kp-card <?php echo esc_attr( $rotate ); ?>">
+			<article class="kp-card">
 				<a href="<?php the_permalink(); ?>" class="kp-card__media">
 					<?php if ( has_post_thumbnail() ) {
 						the_post_thumbnail( 'medium' );
@@ -121,7 +122,7 @@ $new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
 				</a>
 				<div class="kp-card__body">
 					<?php if ( $genre ) : ?>
-						<span class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre->name ) ); ?>">#<?php echo esc_html( $genre->name ); ?></span>
+						<span class="kp-chip" style="background:<?php echo esc_attr( kyosuki_pop_genre_color( $genre ) ); ?>">#<?php echo esc_html( $genre->name ); ?></span>
 					<?php endif; ?>
 					<h3 class="kp-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 					<p class="kp-card__meta">
@@ -132,6 +133,11 @@ $new_q = new WP_Query( array( 'posts_per_page' => 8 ) );
 			</article>
 		<?php endwhile; wp_reset_postdata(); endif; ?>
 	</div>
+
+	<p class="kp-section__more">
+		<a class="kp-more-btn" href="<?php echo esc_url( $more_url ); ?>">詳しく見る →</a>
+	</p>
+</section>
 </section>
 
 <?php
