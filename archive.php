@@ -10,7 +10,8 @@ get_header(); ?>
 	<div class="kp-pagehero__deco" aria-hidden="true">★ ♡ ★ ♡ ★ ♡ ★ ♡ ★ ♡ ★</div>
 	<p class="kp-pagehero__kicker">★ ARCHIVE ★</p>
 	<h1 class="kp-pagehero__title"><?php
-		if ( is_category() || is_tag() || is_tax() ) single_term_title();
+		if ( is_post_type_archive() ) post_type_archive_title();
+		elseif ( is_category() || is_tag() || is_tax() ) single_term_title();
 		elseif ( is_author() ) the_author();
 		elseif ( is_date() ) echo esc_html( get_the_date( 'Y年n月' ) );
 		else esc_html_e( '記事一覧', 'kyosuki-pop' );

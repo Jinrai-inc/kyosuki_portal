@@ -7,7 +7,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'KYOSUKI_POP_VERSION', '1.8.1' );
+define( 'KYOSUKI_POP_VERSION', '1.9.0' );
 define( 'KYOSUKI_POP_DIR', get_template_directory() );
 define( 'KYOSUKI_POP_URI', get_template_directory_uri() );
 

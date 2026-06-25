@@ -454,6 +454,54 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: 999px;
 }
 
+/* Status chips (kp_status: 成立 / 交際 / 破局 / 進行中) */
+.kp-chip--status {
+  font-weight: 900;
+  font-size: 10px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--kp-ink);
+  box-shadow: 2px 2px 0 var(--kp-ink);
+  color: var(--kp-ink) !important;
+  background: #fff;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.kp-chip--status-success, .kp-chip--status-seiritsu { background: #FFE066; }
+.kp-chip--status-dating, .kp-chip--status-kosai     { background: #C9F28A; }
+.kp-chip--status-breakup, .kp-chip--status-haikyoku { background: #6B5A8A; color: #fff !important; }
+.kp-chip--status-progress, .kp-chip--status-shinko  { background: #5AC8FA; }
+
+/* Couple card heart overlay */
+.kp-card--couple .kp-card__media { position: relative; }
+.kp-card--couple .kp-couple__heart {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 26px; color: var(--kp-pink-deep);
+  text-shadow: 2px 2px 0 var(--kp-ink);
+  z-index: 2;
+}
+
+/* Cast card SNS row */
+.kp-card--cast .kp-card__body { border-top: 4px solid var(--tone, var(--kp-pink)); }
+.kp-card__sns { display: flex; gap: 8px; margin: 8px 0 0; }
+.kp-card__sns a {
+  display: inline-block;
+  font-size: 10px; font-weight: 900;
+  background: var(--kp-ink); color: var(--kp-yellow) !important;
+  padding: 3px 8px; border-radius: 6px;
+  text-decoration: none;
+}
+.kp-card__sns a:hover { background: var(--kp-pink-deep); }
+
+/* Cover image aspect & focus (CPT archive 推奨) */
+.kp-card--couple .kp-card__media img,
+.kp-card--cast .kp-card__media img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 28%;
+  width: 100%;
+}
+
 /* Section "詳しく見る" button */
 .kp-section__more { text-align: center; margin: 28px 0 0; }
 .kp-more-btn {
