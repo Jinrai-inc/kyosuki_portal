@@ -502,6 +502,43 @@ img { max-width: 100%; height: auto; display: block; }
   width: 100%;
 }
 
+/* ==========================================================================
+   Profile card (single-cast / single-couple)
+   ========================================================================== */
+
+.kp-profile {
+  background: linear-gradient(135deg, #FAF0F6 0%, #F3ECFB 100%);
+  border: 3px solid #2d1b4e;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin: 20px 0 28px;
+  box-shadow: 0 6px 18px rgba(150,110,180,.15);
+}
+.kp-profile__head {
+  display: inline-block;
+  background: #2d1b4e; color: #ffe34d; font-weight: 800;
+  padding: 6px 18px; border-radius: 999px; margin-bottom: 14px;
+  letter-spacing: .08em; font-size: .95rem;
+}
+.kp-profile__table { width: 100%; border-collapse: collapse; }
+.kp-profile__table th, .kp-profile__table td {
+  text-align: left; padding: 9px 8px; border-bottom: 1px dashed #d9c7e8; font-size: .95rem;
+}
+.kp-profile__table th {
+  width: 34%; color: #9B5DE5; font-weight: 700; white-space: nowrap;
+}
+.kp-profile__table td { color: #2d1b4e; }
+.kp-profile__table tr:last-child th, .kp-profile__table tr:last-child td { border-bottom: none; }
+.kp-profile__sns-wrap { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.kp-profile__sns {
+  background: #E83E8C; color: #fff !important; text-decoration: none;
+  font-weight: 700; font-size: .85rem; padding: 7px 16px; border-radius: 999px;
+}
+.kp-profile__sns:hover { background: #d12a78; }
+@media (max-width: 560px) {
+  .kp-profile__table th { width: 40%; }
+}
+
 /* Section "詳しく見る" button */
 .kp-section__more { text-align: center; margin: 28px 0 0; }
 .kp-more-btn {
