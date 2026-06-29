@@ -206,20 +206,29 @@ $more_url = kyosuki_pop_posts_archive_url();
 				$poll_opts = Kyosuki_Pop_Poll::get_options_list();
 				$poll_data = Kyosuki_Pop_Poll::calculate_percentages();
 			?>
-			<div class="kp-poll" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
-				<p class="kp-poll__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
-				<p class="kp-poll__hint" data-kp-poll-hint>♡ あなたの推しCPに投票してね（投票後に結果が見れるよ）</p>
-				<ul class="kp-poll__list">
+			<div class="kp-poll-grid" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
+				<p class="kp-poll-grid__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
+				<p class="kp-poll-grid__hint" data-kp-poll-hint>♡ 推しCPの画像をタップ／クリックして投票してね</p>
+				<div class="kp-poll-grid__items">
 					<?php foreach ( $poll_opts as $o ) :
 						$pct = (int) ( $poll_data['percentages'][ $o['hash'] ] ?? 0 );
+						$img = ! empty( $o['image_url'] ) ? $o['image_url'] : kyosuki_pop_placeholder_url( crc32( $o['hash'] ) );
 					?>
-						<li style="--w:<?php echo (int) $pct; ?>%;" data-kp-opt-hash="<?php echo esc_attr( $o['hash'] ); ?>" data-kp-pct="<?php echo (int) $pct; ?>">
-							<button type="button" class="kp-poll__opt"><span class="kp-poll__name"><?php echo esc_html( $o['name'] ); ?></span><b class="kp-poll__pct"><?php echo (int) $pct; ?>%</b></button>
-						</li>
+						<button type="button"
+							class="kp-poll-card"
+							data-kp-opt-hash="<?php echo esc_attr( $o['hash'] ); ?>"
+							data-kp-pct="<?php echo (int) $pct; ?>"
+							aria-label="<?php echo esc_attr( $o['name'] ); ?> に投票">
+							<img class="kp-poll-card__img" src="<?php echo esc_url( $img ); ?>" alt="">
+							<span class="kp-poll-card__name"><?php echo esc_html( $o['name'] ); ?></span>
+							<span class="kp-poll-card__overlay" aria-hidden="true">
+								<span class="kp-poll-card__pct" data-kp-target="<?php echo (int) $pct; ?>">0%</span>
+							</span>
+						</button>
 					<?php endforeach; ?>
-				</ul>
-				<p class="kp-poll__msg" data-kp-poll-msg hidden>♡ 投票ありがとう！結果はこちら ↑</p>
-				<p class="kp-poll__err" data-kp-poll-err hidden></p>
+				</div>
+				<p class="kp-poll-grid__msg" data-kp-poll-msg hidden>♡ 投票ありがとう！</p>
+				<p class="kp-poll-grid__err" data-kp-poll-err hidden></p>
 			</div>
 			<?php endif; ?>
 		</aside>

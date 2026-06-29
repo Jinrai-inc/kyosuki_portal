@@ -25,18 +25,21 @@ class Kyosuki_Pop_Poll_CPT {
 
 	const POST_TYPE     = 'kp_poll';
 	const META_OPTIONS  = '_kp_poll_options';
+	const META_CHOICES  = '_kp_poll_choices';   // 構造化: array of { name, image_id }
 	const META_VOTES    = '_kp_poll_votes';
 	const META_STARTED  = '_kp_poll_started_at';
 	const META_ARCHIVED = '_kp_poll_archived_at';
 	const OPT_ACTIVE_ID = 'kp_active_poll_id';
 	const OPT_MIGRATED  = 'kp_poll_migrated_to_cpt';
 	const NONCE_ACTION  = 'kp_poll_meta';
+	const CHOICES_MAX   = 10;
 
 	public static function init() {
 		add_action( 'init',                       array( __CLASS__, 'register_cpt' ) );
 		add_action( 'init',                       array( __CLASS__, 'maybe_migrate' ), 30 );
 		add_action( 'add_meta_boxes',             array( __CLASS__, 'add_meta_boxes' ) );
 		add_action( 'save_post_' . self::POST_TYPE, array( __CLASS__, 'save_post' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts',      array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_action( 'before_delete_post',         array( __CLASS__, 'on_delete' ) );
 
 		// Admin list table columns
@@ -99,6 +102,28 @@ class Kyosuki_Pop_Poll_CPT {
 		return $placeholder;
 	}
 
+	public static function enqueue_admin_assets( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) return;
+		$screen = get_current_screen();
+		if ( ! $screen || $screen->post_type !== self::POST_TYPE ) return;
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'kp-poll-admin',
+			get_template_directory_uri() . '/assets/js/poll-admin.js',
+			array( 'jquery' ),
+			defined( 'KYOSUKI_POP_VERSION' ) ? KYOSUKI_POP_VERSION : '1',
+			true
+		);
+		wp_add_inline_style( 'common', '
+			.kp-poll-choices .kp-choice-row { display:flex;align-items:center;gap:12px;padding:8px;border:2px dashed #d9c7e8;border-radius:8px;margin-bottom:8px;background:#fff; }
+			.kp-poll-choices .kp-choice-thumb { width:60px;height:60px;border:2px solid #1A0B3D;border-radius:8px;background:#EFE7FF;display:grid;place-items:center;overflow:hidden;flex-shrink:0; }
+			.kp-poll-choices .kp-choice-thumb img { width:100%;height:100%;object-fit:cover; display:block; }
+			.kp-poll-choices .kp-choice-thumb__ph { color:#9B5DE5;font-weight:900;font-size:24px; }
+			.kp-poll-choices .kp-choice-row input[type=text] { flex:1;min-width:0; }
+			.kp-poll-choices .kp-choice-remove { color:#a00 !important; }
+		' );
+	}
+
 	/* =========================================================
 	 * Helpers
 	 * ========================================================= */
@@ -130,7 +155,34 @@ class Kyosuki_Pop_Poll_CPT {
 		}
 	}
 
+	/**
+	 * 選択肢一覧。新形式 META_CHOICES (画像 + 名前) を優先、無ければ
+	 * 旧形式 META_OPTIONS (1行1件テキスト) にフォールバック。
+	 *
+	 * 戻り値の各要素: { name, hash, image_id, image_url }
+	 */
 	public static function options_list( $post_id ) {
+		$choices = get_post_meta( $post_id, self::META_CHOICES, true );
+		if ( is_array( $choices ) && $choices ) {
+			$out  = array();
+			$seen = array();
+			foreach ( array_slice( $choices, 0, self::CHOICES_MAX ) as $c ) {
+				$name = trim( (string) ( $c['name'] ?? '' ) );
+				if ( $name === '' || isset( $seen[ $name ] ) ) continue;
+				$seen[ $name ] = true;
+				$image_id  = (int) ( $c['image_id'] ?? 0 );
+				$image_url = $image_id ? (string) wp_get_attachment_image_url( $image_id, 'medium_large' ) : '';
+				$out[] = array(
+					'name'      => $name,
+					'hash'      => self::vote_key( $name ),
+					'image_id'  => $image_id,
+					'image_url' => $image_url,
+				);
+			}
+			return $out;
+		}
+
+		// 旧テキスト互換
 		$raw   = (string) get_post_meta( $post_id, self::META_OPTIONS, true );
 		$lines = preg_split( "/\r\n|\r|\n/", trim( $raw ) );
 		$out   = array();
@@ -138,13 +190,18 @@ class Kyosuki_Pop_Poll_CPT {
 		foreach ( $lines as $line ) {
 			$name = trim( $line );
 			if ( $name === '' ) continue;
-			// 旧形式 "name|78" のサフィックス除去
 			if ( strpos( $name, '|' ) !== false ) {
 				$name = trim( explode( '|', $name, 2 )[0] );
 			}
 			if ( $name === '' || isset( $seen[ $name ] ) ) continue;
 			$seen[ $name ] = true;
-			$out[] = array( 'name' => $name, 'hash' => self::vote_key( $name ) );
+			$out[] = array(
+				'name'      => $name,
+				'hash'      => self::vote_key( $name ),
+				'image_id'  => 0,
+				'image_url' => '',
+			);
+			if ( count( $out ) >= self::CHOICES_MAX ) break;
 		}
 		return $out;
 	}
@@ -202,11 +259,63 @@ class Kyosuki_Pop_Poll_CPT {
 
 	public static function render_options_box( $post ) {
 		wp_nonce_field( self::NONCE_ACTION, 'kp_poll_nonce' );
-		$opts = (string) get_post_meta( $post->ID, self::META_OPTIONS, true );
+
+		// 新メタを取得。旧テキストしか無い場合は変換して表示用に使う（保存はしない）
+		$choices = get_post_meta( $post->ID, self::META_CHOICES, true );
+		if ( ! is_array( $choices ) || ! $choices ) {
+			$choices = array();
+			$old = (string) get_post_meta( $post->ID, self::META_OPTIONS, true );
+			if ( $old !== '' ) {
+				foreach ( preg_split( "/\r\n|\r|\n/", trim( $old ) ) as $line ) {
+					$name = trim( $line );
+					if ( $name === '' ) continue;
+					if ( strpos( $name, '|' ) !== false ) $name = trim( explode( '|', $name, 2 )[0] );
+					if ( $name !== '' ) $choices[] = array( 'name' => $name, 'image_id' => 0 );
+				}
+			}
+		}
 		?>
-		<p style="color:#6B5A8A;margin-top:0;">1 行に 1 組ずつ、推しカップル名を入れてください。<br>例: <code>りく♡みお</code></p>
-		<textarea name="kp_poll_options" rows="8" style="width:100%;font-family:monospace;" placeholder="りく♡みお&#10;ゆうた♡あい&#10;けんと♡なな"><?php echo esc_textarea( $opts ); ?></textarea>
-		<p style="color:#6B5A8A;font-size:12px;margin-bottom:0;">※ 選択肢を直しても、これまでの票はそのまま残ります（名前を変えた選択肢は新規扱いで 0 票スタート）。</p>
+		<p style="color:#6B5A8A;margin-top:0;">推しカップル名と画像を 1 組ずつ追加してください。<strong>上限 <?php echo (int) self::CHOICES_MAX; ?> 組</strong>。</p>
+		<div id="kp-poll-choices" class="kp-poll-choices">
+			<?php
+			if ( $choices ) {
+				foreach ( array_slice( $choices, 0, self::CHOICES_MAX ) as $i => $c ) {
+					self::render_choice_row( $i, $c );
+				}
+			} else {
+				self::render_choice_row( 0, array() );
+			}
+			?>
+		</div>
+		<p>
+			<button type="button" class="button" id="kp-poll-add-choice">＋ 選択肢を追加</button>
+			<span id="kp-poll-count-hint" style="color:#6B5A8A;margin-left:8px;font-size:12px;"></span>
+		</p>
+		<p style="color:#6B5A8A;font-size:12px;margin-bottom:0;">
+			※ 画像は正方形に近い写真がきれいに見えます（自動で 4:3 にトリミングされます）。<br>
+			※ 選択肢の名前を直しても、これまでの票はそのまま残ります（名前を変えた選択肢は新規扱いで 0 票スタート）。
+		</p>
+		<?php
+	}
+
+	protected static function render_choice_row( $index, $choice ) {
+		$name      = (string) ( $choice['name'] ?? '' );
+		$image_id  = (int) ( $choice['image_id'] ?? 0 );
+		$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'thumbnail' ) : '';
+		?>
+		<div class="kp-choice-row" data-index="<?php echo (int) $index; ?>">
+			<div class="kp-choice-thumb">
+				<?php if ( $image_url ) : ?>
+					<img src="<?php echo esc_url( $image_url ); ?>" alt="">
+				<?php else : ?>
+					<span class="kp-choice-thumb__ph">♡</span>
+				<?php endif; ?>
+			</div>
+			<input type="hidden" name="kp_poll_choices[<?php echo (int) $index; ?>][image_id]" value="<?php echo (int) $image_id; ?>">
+			<input type="text"   name="kp_poll_choices[<?php echo (int) $index; ?>][name]" value="<?php echo esc_attr( $name ); ?>" placeholder="例: りく♡みお">
+			<button type="button" class="button kp-choice-pick">画像を選ぶ</button>
+			<button type="button" class="button kp-choice-remove" aria-label="削除">×</button>
+		</div>
 		<?php
 	}
 
@@ -326,8 +435,24 @@ class Kyosuki_Pop_Poll_CPT {
 		if ( ! isset( $_POST['kp_poll_nonce'] ) || ! wp_verify_nonce( $_POST['kp_poll_nonce'], self::NONCE_ACTION ) ) return;
 		if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
-		// Options
-		if ( isset( $_POST['kp_poll_options'] ) ) {
+		// 新形式: 画像 + 名前の構造化選択肢
+		if ( isset( $_POST['kp_poll_choices'] ) && is_array( $_POST['kp_poll_choices'] ) ) {
+			$clean = array();
+			$seen  = array();
+			foreach ( wp_unslash( $_POST['kp_poll_choices'] ) as $row ) {
+				if ( ! is_array( $row ) ) continue;
+				$name = trim( sanitize_text_field( $row['name'] ?? '' ) );
+				if ( $name === '' || isset( $seen[ $name ] ) ) continue;
+				$seen[ $name ] = true;
+				$image_id = isset( $row['image_id'] ) ? absint( $row['image_id'] ) : 0;
+				$clean[] = array( 'name' => $name, 'image_id' => $image_id );
+				if ( count( $clean ) >= self::CHOICES_MAX ) break;
+			}
+			update_post_meta( $post_id, self::META_CHOICES, $clean );
+			// 旧テキスト互換も同時更新（管理画面外で options_list 旧分岐が走らないように）
+			update_post_meta( $post_id, self::META_OPTIONS, implode( "\n", array_column( $clean, 'name' ) ) );
+		} elseif ( isset( $_POST['kp_poll_options'] ) ) {
+			// 旧 textarea も一応サポート
 			$opts = sanitize_textarea_field( wp_unslash( $_POST['kp_poll_options'] ) );
 			update_post_meta( $post_id, self::META_OPTIONS, $opts );
 		}

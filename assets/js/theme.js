@@ -42,10 +42,28 @@
 	} );
 
 	// ===== Poll voting (REST API集計) =====
+	function kpAnimateCount( el, target, duration ) {
+		if ( ! el ) return;
+		target = Math.max( 0, parseInt( target, 10 ) || 0 );
+		duration = duration || 900;
+		var start = parseInt( ( el.textContent || '' ).replace( /[^\d]/g, '' ), 10 ) || 0;
+		var startTime = null;
+		function step ( now ) {
+			if ( startTime === null ) startTime = now;
+			var elapsed = now - startTime;
+			var progress = Math.min( 1, elapsed / duration );
+			var eased = 1 - Math.pow( 1 - progress, 3 );
+			var current = Math.round( start + ( target - start ) * eased );
+			el.textContent = current + '%';
+			if ( progress < 1 ) requestAnimationFrame( step );
+		}
+		requestAnimationFrame( step );
+	}
+
 	document.querySelectorAll( '[data-kp-poll]' ).forEach( function ( poll ) {
 		var pollId = poll.dataset.kpPollId || 'default';
 		var key    = 'kp_poll_' + pollId;
-		var items  = poll.querySelectorAll( 'li[data-kp-opt-hash]' );
+		var items  = poll.querySelectorAll( '[data-kp-opt-hash]' );
 		var msg    = poll.querySelector( '[data-kp-poll-msg]' );
 		var hint   = poll.querySelector( '[data-kp-poll-hint]' );
 		var errEl  = poll.querySelector( '[data-kp-poll-err]' );
@@ -62,15 +80,22 @@
 			items.forEach( function ( li ) { li.classList.add( 'is-locked' ); } );
 		}
 
-		function applyData( options ) {
+		function applyData( options, animate ) {
 			if ( ! options || ! options.length ) return;
 			options.forEach( function ( o ) {
-				var li = poll.querySelector( 'li[data-kp-opt-hash="' + o.hash + '"]' );
-				if ( ! li ) return;
-				li.dataset.kpPct = o.pct;
-				li.style.setProperty( '--w', o.pct + '%' );
-				var pctEl = li.querySelector( '.kp-poll__pct' );
-				if ( pctEl ) pctEl.textContent = o.pct + '%';
+				var item = poll.querySelector( '[data-kp-opt-hash="' + o.hash + '"]' );
+				if ( ! item ) return;
+				item.dataset.kpPct = o.pct;
+				item.style.setProperty( '--w', o.pct + '%' );
+				var pctEl = item.querySelector( '.kp-poll-card__pct, .kp-poll__pct' );
+				if ( pctEl ) {
+					pctEl.dataset.kpTarget = o.pct;
+					if ( animate ) {
+						kpAnimateCount( pctEl, o.pct, 900 );
+					} else {
+						pctEl.textContent = o.pct + '%';
+					}
+				}
 			} );
 		}
 
@@ -106,7 +131,7 @@
 					}
 					return;
 				}
-				applyData( res.body.options );
+				applyData( res.body.options, true );
 				voted = true;
 				try { localStorage.setItem( key, hash ); } catch ( e ) {}
 				if ( li ) li.classList.add( 'is-active' );
@@ -115,22 +140,23 @@
 			.catch( function () { showError( '通信エラー' ); } );
 		}
 
-		items.forEach( function ( li ) {
-			var opt = li.querySelector( '.kp-poll__opt' );
-			if ( ! opt ) return;
-			opt.addEventListener( 'click', function ( e ) {
+		items.forEach( function ( item ) {
+			// クリック対象: item 自身がボタンなら item、そうでなければ中の .kp-poll__opt
+			var clickable = ( item.tagName === 'BUTTON' || item.tagName === 'A' )
+				? item
+				: ( item.querySelector( '.kp-poll__opt' ) || item );
+			clickable.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
 				if ( voted ) return;
-				// クロージャに頼らず、実際のクリック対象から li を辿る
-				var clickedLi = ( e.currentTarget && e.currentTarget.closest )
-					? e.currentTarget.closest( 'li[data-kp-opt-hash]' )
-					: li;
-				if ( ! clickedLi ) return;
-				var hash = clickedLi.dataset.kpOptHash || '';
+				var clicked = ( e.currentTarget && e.currentTarget.closest )
+					? e.currentTarget.closest( '[data-kp-opt-hash]' )
+					: item;
+				if ( ! clicked ) clicked = item;
+				var hash = clicked.dataset.kpOptHash || '';
 				if ( ! hash ) return;
 				items.forEach( function ( x ) { x.classList.remove( 'is-active' ); } );
-				clickedLi.classList.add( 'is-active' );
-				vote( hash, clickedLi );
+				clicked.classList.add( 'is-active' );
+				vote( hash, clicked );
 			} );
 		} );
 
@@ -140,14 +166,14 @@
 			items.forEach( function ( li ) {
 				if ( li.dataset.kpOptHash && li.dataset.kpOptHash === savedHash ) li.classList.add( 'is-active' );
 			} );
-			// 最新結果を取得して反映
+			// 最新結果を取得して反映（カウントアップ付き）
 			if ( window.KP_POLL && KP_POLL.restUrl ) {
 				var sep = KP_POLL.restUrl.indexOf( '?' ) === -1 ? '?' : '&';
 				fetch( KP_POLL.restUrl + sep + 'poll_id=' + encodeURIComponent( pollId ) )
 					.then( function ( r ) { return r.json(); } )
 					.then( function ( j ) {
-						if ( j && j.options ) applyData( j.options );
 						lockResults();
+						if ( j && j.options ) applyData( j.options, true );
 					} ).catch( function () { lockResults(); } );
 			} else {
 				lockResults();

@@ -503,6 +503,119 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ==========================================================================
+   Poll grid (image click-to-vote)
+   ========================================================================== */
+
+.kp-poll-grid {
+  background: #fff;
+  border: 3px solid var(--kp-ink);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 4px 4px 0 var(--kp-blue);
+  margin: 0 0 16px;
+}
+.kp-poll-grid__title {
+  font-family: "LINE Seed JP", "Hiragino Sans", "Yu Gothic UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px; font-weight: 900;
+  text-align: center; color: var(--kp-purple);
+  margin: 0 0 6px;
+}
+.kp-poll-grid__hint {
+  text-align: center; font-size: 11px; color: var(--kp-sub);
+  margin: 0 0 14px; line-height: 1.5;
+}
+.kp-poll-grid__items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 768px) {
+  .kp-poll-grid__items { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kp-poll-card {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 3px solid var(--kp-ink);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--kp-bg-2);
+  padding: 0;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  display: block;
+}
+.kp-poll-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 0 var(--kp-pink);
+}
+.kp-poll-card__img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  display: block;
+}
+.kp-poll-card__name {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 22px 6px 8px;
+  background: linear-gradient(to top, rgba(26,11,61,.85) 0%, rgba(26,11,61,.55) 60%, rgba(26,11,61,0) 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.3;
+  letter-spacing: .02em;
+  pointer-events: none;
+}
+
+/* Overlay (post-vote) */
+.kp-poll-card__overlay {
+  position: absolute; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  background: rgba(60, 50, 80, .72);
+  color: #fff;
+  font-family: "Reggae One", "LINE Seed JP", sans-serif;
+  font-weight: 900;
+  font-size: 30px;
+  text-shadow: 3px 3px 0 var(--kp-ink);
+  pointer-events: none;
+}
+.kp-poll-grid.is-voted .kp-poll-card { cursor: default; transform: none; box-shadow: none; }
+.kp-poll-grid.is-voted .kp-poll-card__overlay { display: flex; }
+.kp-poll-grid.is-voted .kp-poll-card.is-active .kp-poll-card__overlay {
+  background: rgba(232, 62, 140, .82);
+}
+.kp-poll-grid.is-voted .kp-poll-card.is-active {
+  border-color: var(--kp-pink-deep);
+  box-shadow: 0 0 0 3px var(--kp-pink-deep);
+}
+
+.kp-poll-grid__msg {
+  margin: 14px 0 0;
+  background: var(--kp-yellow);
+  border: 2px solid var(--kp-ink);
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 12px;
+}
+.kp-poll-grid__err {
+  margin: 14px 0 0;
+  background: #ffe4ec;
+  border: 2px solid #d33;
+  color: #d33;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 3px 3px 0 #d33;
+}
+
+/* ==========================================================================
    Profile card (single-cast / single-couple)
    ========================================================================== */
 
