@@ -221,50 +221,44 @@ $more_url = kyosuki_pop_posts_archive_url();
 					if ( $a['pct'] === $b['pct'] ) return $a['_i'] - $b['_i'];
 					return $b['pct'] - $a['pct'];
 				} );
-				$kp_items = array_slice( $kp_items, 0, 99 );
-				$kp_top   = array_slice( $kp_items, 0, 3 );
-				$kp_rest  = array_slice( $kp_items, 3 );
-
-				$kp_render_card = function ( $it, $rank, $is_top ) {
-					$cls = 'kp-poll-card kp-podium__item';
-					if ( $is_top ) $cls .= ' kp-podium__item--' . (int) $rank;
-					else           $cls .= ' kp-podium__item--rest';
-					?>
-					<button type="button"
-						class="<?php echo esc_attr( $cls ); ?>"
-						data-kp-opt-hash="<?php echo esc_attr( $it['hash'] ); ?>"
-						data-kp-pct="<?php echo (int) $it['pct']; ?>"
-						aria-label="<?php echo esc_attr( $it['name'] ); ?> に投票">
-						<?php if ( $is_top && $rank === 1 ) : ?>
-							<span class="kp-podium__crown" aria-hidden="true">👑</span>
-						<?php endif; ?>
-						<span class="kp-poll-card__photo">
-							<img class="kp-poll-card__img" src="<?php echo esc_url( $it['img'] ); ?>" alt="">
-						</span>
-						<span class="kp-podium__rank kp-podium__rank--<?php echo (int) $rank; ?>"><?php echo (int) $rank; ?>位</span>
-						<span class="kp-poll-card__name"><?php echo esc_html( $it['name'] ); ?></span>
-						<span class="kp-poll-card__pct" data-kp-target="<?php echo (int) $it['pct']; ?>">0%</span>
-					</button>
-					<?php
-				};
+				$kp_top      = array_slice( $kp_items, 0, 3 );
+				$kp_has_more = count( $kp_items ) > 3;
+				$kp_more_url = function_exists( 'kyosuki_pop_poll_ranking_url' ) ? kyosuki_pop_poll_ranking_url() : home_url( '/' );
 			?>
 			<div class="kp-poll-grid kp-podium" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
 				<p class="kp-poll-grid__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
 				<p class="kp-poll-grid__hint" data-kp-poll-hint>♡ 推しCPをタップ／クリックして投票してね</p>
 
 				<div class="kp-podium__top" data-count="<?php echo count( $kp_top ); ?>">
-					<?php foreach ( $kp_top as $i => $it ) { $kp_render_card( $it, $i + 1, true ); } ?>
+					<?php foreach ( $kp_top as $i => $it ) :
+						$rank = $i + 1;
+					?>
+						<button type="button"
+							class="kp-poll-card kp-podium__item kp-podium__item--<?php echo (int) $rank; ?>"
+							data-kp-opt-hash="<?php echo esc_attr( $it['hash'] ); ?>"
+							data-kp-pct="<?php echo (int) $it['pct']; ?>"
+							aria-label="<?php echo esc_attr( $it['name'] ); ?> に投票">
+							<?php if ( $rank === 1 ) : ?>
+								<span class="kp-podium__crown" aria-hidden="true">👑</span>
+							<?php endif; ?>
+							<span class="kp-poll-card__photo">
+								<img class="kp-poll-card__img" src="<?php echo esc_url( $it['img'] ); ?>" alt="">
+							</span>
+							<span class="kp-podium__rank kp-podium__rank--<?php echo (int) $rank; ?>"><?php echo (int) $rank; ?>位</span>
+							<span class="kp-poll-card__name"><?php echo esc_html( $it['name'] ); ?></span>
+							<span class="kp-poll-card__pct" data-kp-target="<?php echo (int) $it['pct']; ?>">0%</span>
+						</button>
+					<?php endforeach; ?>
 				</div>
-
-				<?php if ( $kp_rest ) : ?>
-					<div class="kp-podium__rest" hidden>
-						<?php foreach ( $kp_rest as $i => $it ) { $kp_render_card( $it, $i + 4, false ); } ?>
-					</div>
-					<button type="button" class="kp-podium__toggle" data-kp-podium-toggle aria-expanded="false">その他はこちら ▼</button>
-				<?php endif; ?>
 
 				<p class="kp-poll-grid__msg" data-kp-poll-msg hidden>♡ 投票ありがとう！</p>
 				<p class="kp-poll-grid__err" data-kp-poll-err hidden></p>
+
+				<?php if ( $kp_has_more ) : ?>
+					<p class="kp-podium__more-wrap">
+						<a class="kp-podium__more-link" href="<?php echo esc_url( $kp_more_url ); ?>">その他のランキングはこちら →</a>
+					</p>
+				<?php endif; ?>
 			</div>
 			<?php endif; ?>
 		</aside>

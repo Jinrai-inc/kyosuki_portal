@@ -254,6 +254,68 @@ function kyosuki_pop_ranking_url() {
 }
 
 /**
+ * poll-ranking.php を Page Template として割り当てた固定ページを保証する。
+ * /cp-ranking/ にカップル投票の全件ランキングを表示。
+ */
+function kyosuki_pop_ensure_poll_ranking_page() {
+	$cached = (int) get_option( 'kp_poll_ranking_page_id' );
+	if ( $cached && get_post( $cached ) && get_post_status( $cached ) === 'publish' ) {
+		if ( get_post_meta( $cached, '_wp_page_template', true ) !== 'poll-ranking.php' ) {
+			update_post_meta( $cached, '_wp_page_template', 'poll-ranking.php' );
+		}
+		return $cached;
+	}
+
+	// 1) ranking.php の時と同様、既に同テンプレが割当られたページを優先
+	$q = new WP_Query( array(
+		'post_type'      => 'page',
+		'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
+		'meta_key'       => '_wp_page_template',
+		'meta_value'     => 'poll-ranking.php',
+		'posts_per_page' => 1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	) );
+	if ( ! empty( $q->posts ) ) {
+		$id = (int) $q->posts[0];
+		if ( get_post_status( $id ) !== 'publish' ) {
+			wp_update_post( array( 'ID' => $id, 'post_status' => 'publish' ) );
+		}
+		update_option( 'kp_poll_ranking_page_id', $id, false );
+		return $id;
+	}
+
+	// 2) 新規作成。slug 'cp-ranking' が取れなければ別 slug
+	$desired_slug = get_page_by_path( 'cp-ranking', OBJECT, 'page' ) ? 'cp-ranking-full' : 'cp-ranking';
+
+	$id = wp_insert_post( array(
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'カップル投票ランキング',
+		'post_name'    => $desired_slug,
+		'post_content' => '',
+		'meta_input'   => array( '_wp_page_template' => 'poll-ranking.php' ),
+	), true );
+
+	if ( $id && ! is_wp_error( $id ) ) {
+		update_option( 'kp_poll_ranking_page_id', (int) $id, false );
+		return (int) $id;
+	}
+	return 0;
+}
+add_action( 'after_switch_theme', 'kyosuki_pop_ensure_poll_ranking_page' );
+add_action( 'admin_init',         'kyosuki_pop_ensure_poll_ranking_page' );
+
+function kyosuki_pop_poll_ranking_url() {
+	$id = kyosuki_pop_ensure_poll_ranking_page();
+	if ( $id ) {
+		$url = get_permalink( $id );
+		if ( $url ) return $url;
+	}
+	return home_url( '/' );
+}
+
+/**
  * 旧バージョン (1.6.1〜1.6.3) で登録した /ranking/ リライトルール
  * + kp_ranking_page_id 未設定の環境を一度だけクリーンアップ。
  */
