@@ -181,6 +181,25 @@
 		}
 	} );
 
+	// ===== Podium "show others" toggle =====
+	document.querySelectorAll( '[data-kp-podium-toggle]' ).forEach( function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			var poll = btn.closest( '[data-kp-poll]' );
+			var rest = poll && poll.querySelector( '.kp-podium__rest' );
+			if ( ! rest ) return;
+			var hidden = rest.hasAttribute( 'hidden' );
+			if ( hidden ) {
+				rest.removeAttribute( 'hidden' );
+				btn.setAttribute( 'aria-expanded', 'true' );
+				btn.textContent = '閉じる ▲';
+			} else {
+				rest.setAttribute( 'hidden', '' );
+				btn.setAttribute( 'aria-expanded', 'false' );
+				btn.textContent = 'その他はこちら ▼';
+			}
+		} );
+	} );
+
 	// ===== Like buttons =====
 	document.querySelectorAll( '[data-kp-like]' ).forEach( function ( btn ) {
 		var pid = parseInt( btn.dataset.kpLike, 10 );

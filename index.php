@@ -205,28 +205,64 @@ $more_url = kyosuki_pop_posts_archive_url();
 			if ( $poll_post && Kyosuki_Pop_Poll::has_options() ) :
 				$poll_opts = Kyosuki_Pop_Poll::get_options_list();
 				$poll_data = Kyosuki_Pop_Poll::calculate_percentages();
-			?>
-			<div class="kp-poll-grid" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
-				<p class="kp-poll-grid__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
-				<p class="kp-poll-grid__hint" data-kp-poll-hint>♡ 推しCPの画像をタップ／クリックして投票してね</p>
-				<div class="kp-poll-grid__items">
-					<?php foreach ( $poll_opts as $o ) :
-						$pct = (int) ( $poll_data['percentages'][ $o['hash'] ] ?? 0 );
-						$img = ! empty( $o['image_url'] ) ? $o['image_url'] : kyosuki_pop_placeholder_url( crc32( $o['hash'] ) );
+
+				// %降順で順位確定（同点は登録順を保持）
+				$kp_items = array();
+				foreach ( $poll_opts as $orig_i => $o ) {
+					$kp_items[] = array(
+						'name' => $o['name'],
+						'hash' => $o['hash'],
+						'img'  => ! empty( $o['image_url'] ) ? $o['image_url'] : kyosuki_pop_placeholder_url( crc32( $o['hash'] ) ),
+						'pct'  => (int) ( $poll_data['percentages'][ $o['hash'] ] ?? 0 ),
+						'_i'   => $orig_i,
+					);
+				}
+				usort( $kp_items, function ( $a, $b ) {
+					if ( $a['pct'] === $b['pct'] ) return $a['_i'] - $b['_i'];
+					return $b['pct'] - $a['pct'];
+				} );
+				$kp_items = array_slice( $kp_items, 0, 99 );
+				$kp_top   = array_slice( $kp_items, 0, 3 );
+				$kp_rest  = array_slice( $kp_items, 3 );
+
+				$kp_render_card = function ( $it, $rank, $is_top ) {
+					$cls = 'kp-poll-card kp-podium__item';
+					if ( $is_top ) $cls .= ' kp-podium__item--' . (int) $rank;
+					else           $cls .= ' kp-podium__item--rest';
 					?>
-						<button type="button"
-							class="kp-poll-card"
-							data-kp-opt-hash="<?php echo esc_attr( $o['hash'] ); ?>"
-							data-kp-pct="<?php echo (int) $pct; ?>"
-							aria-label="<?php echo esc_attr( $o['name'] ); ?> に投票">
-							<img class="kp-poll-card__img" src="<?php echo esc_url( $img ); ?>" alt="">
-							<span class="kp-poll-card__name"><?php echo esc_html( $o['name'] ); ?></span>
-							<span class="kp-poll-card__overlay" aria-hidden="true">
-								<span class="kp-poll-card__pct" data-kp-target="<?php echo (int) $pct; ?>">0%</span>
-							</span>
-						</button>
-					<?php endforeach; ?>
+					<button type="button"
+						class="<?php echo esc_attr( $cls ); ?>"
+						data-kp-opt-hash="<?php echo esc_attr( $it['hash'] ); ?>"
+						data-kp-pct="<?php echo (int) $it['pct']; ?>"
+						aria-label="<?php echo esc_attr( $it['name'] ); ?> に投票">
+						<?php if ( $is_top && $rank === 1 ) : ?>
+							<span class="kp-podium__crown" aria-hidden="true">👑</span>
+						<?php endif; ?>
+						<span class="kp-poll-card__photo">
+							<img class="kp-poll-card__img" src="<?php echo esc_url( $it['img'] ); ?>" alt="">
+						</span>
+						<span class="kp-podium__rank kp-podium__rank--<?php echo (int) $rank; ?>"><?php echo (int) $rank; ?>位</span>
+						<span class="kp-poll-card__name"><?php echo esc_html( $it['name'] ); ?></span>
+						<span class="kp-poll-card__pct" data-kp-target="<?php echo (int) $it['pct']; ?>">0%</span>
+					</button>
+					<?php
+				};
+			?>
+			<div class="kp-poll-grid kp-podium" data-kp-poll data-kp-poll-id="<?php echo (int) $poll_post->ID; ?>">
+				<p class="kp-poll-grid__title"><?php echo esc_html( $poll_post->post_title ); ?></p>
+				<p class="kp-poll-grid__hint" data-kp-poll-hint>♡ 推しCPをタップ／クリックして投票してね</p>
+
+				<div class="kp-podium__top" data-count="<?php echo count( $kp_top ); ?>">
+					<?php foreach ( $kp_top as $i => $it ) { $kp_render_card( $it, $i + 1, true ); } ?>
 				</div>
+
+				<?php if ( $kp_rest ) : ?>
+					<div class="kp-podium__rest" hidden>
+						<?php foreach ( $kp_rest as $i => $it ) { $kp_render_card( $it, $i + 4, false ); } ?>
+					</div>
+					<button type="button" class="kp-podium__toggle" data-kp-podium-toggle aria-expanded="false">その他はこちら ▼</button>
+				<?php endif; ?>
+
 				<p class="kp-poll-grid__msg" data-kp-poll-msg hidden>♡ 投票ありがとう！</p>
 				<p class="kp-poll-grid__err" data-kp-poll-err hidden></p>
 			</div>
